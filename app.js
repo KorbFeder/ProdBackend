@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 
 const todosRouter = require('./routes/todos');
+const aliveRouter = require('./routes/alive');
 
 var app = express();
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/api/todos', todosRouter);
+app.use('/api/alive', aliveRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
