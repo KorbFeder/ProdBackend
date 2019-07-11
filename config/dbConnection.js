@@ -8,4 +8,5 @@ module.exports = () => {
         database: 'productivity_db',
         connectionLimit: '10'
     });
+
 }
