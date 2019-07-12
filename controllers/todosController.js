@@ -1,9 +1,11 @@
+'use strict'
+
 const todoModel = require('../models/todosModel');
 
 module.exports = {
     get: function(req, res, next) {
         //save id request somewhere
-        id = req.id;
+        const id = req.id;
         if(!id) {
             todoModel.getAllTodos().then((result) => {
                 console.log(`result: ${result}`);
@@ -21,5 +23,8 @@ module.exports = {
                 res.status(405).send(error);
             })
         }
+    },
+    put: function(req, res, next) {
+        
     }
 }
