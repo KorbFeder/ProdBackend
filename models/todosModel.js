@@ -52,7 +52,7 @@ module.exports = {
      * isDone: boolean,
      * todoMsg: string,
      * importance: int,
-     * endDate, Date,
+     * endDate: Date
      *  
      * @param {object} todo 
      */
@@ -68,5 +68,22 @@ module.exports = {
                 }
             });
         });
+    }, 
+
+    /**
+     * This function deletes the todo in the database where the id is equals the id given
+     * 
+     * @param {number} id 
+     */
+    deleteTodo: function(id) {
+        return new Promise((resolve, reject) => {
+            con.query(`DELETE FROM todos WHERE id = ${id}`, (error, result) => {
+                if(error) {
+                    reject(error);
+                }else{
+                    resolve(result);
+                }
+            })
+        })
     }
 }
