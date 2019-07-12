@@ -3,6 +3,10 @@
 const mysql = require('mysql');
 
 module.exports = () => {
+    /**
+     * creates an mysql pool with the same credentials as the mysql docker container
+     * a pool can manage multiple connections at once and also does the disconnecting
+     */
     return mysql.createPool({
         host: 'producitvity_db',
         user: 'admin',
