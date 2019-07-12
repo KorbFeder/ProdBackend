@@ -3,6 +3,15 @@
 const todoModel = require('../models/todosModel');
 
 module.exports = {
+    /**
+     * This function gets the data from the model and sends it back to the frontend
+     * if an id is passed with the request, than it will return only 1 todo, if not
+     * it will return all todos in the response.
+     * 
+     * @param {object} req 
+     * @param {object} res 
+     * @param {function} next 
+     */
     get: function(req, res, next) {
         //save id request somewhere
         const id = req.params.id;
@@ -24,6 +33,14 @@ module.exports = {
             });
         }
     },
+    /**
+     * This function saves the todo to the database and sends an response depending on 
+     * if it succeeded.
+     * 
+     * @param {object} req 
+     * @param {object} res 
+     * @param {function} next 
+     */
     post: function(req, res, next) {
         const todo = req.body;
         if(todo) {
@@ -39,9 +56,15 @@ module.exports = {
             res.status(400).send("request body was empty")
         }
     },
+    /**
+     * This function deletes an object from the databse and sends an response depending
+     * on if it succeeded.
+     * 
+     * @param {object} req 
+     * @param {object} res 
+     * @param {function} next 
+     */
     delete: function(req, res, next) {
-        console.log(req.params);
-        console.log(req.query);
         const id = req.params.id;
         if(id) {
             todoModel.deleteTodo(id).then((result) => {
