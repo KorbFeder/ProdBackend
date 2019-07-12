@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 
 const routes = require('./routes/routes');
 
-var app = express();
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

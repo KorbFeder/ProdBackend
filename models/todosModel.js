@@ -59,7 +59,9 @@ module.exports = {
     saveTodo: function(todo) {
         return new Promise((resolve, reject) => {
             con.query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate) 
-                       VALUES ('${todo.id}', ${todo.isDone}, ${todo.todoMsg}, ${todo.importance}, ${todo.endDate})`, 
+                       VALUES (${mysql.escape(todo.id)}, ${mysql.escape(todo.isDone)}, 
+                        ${mysql.escape(todo.todoMsg)}, ${mysql.escape(todo.importance)}, 
+                        ${mysql.escape(todo.endDate)})`, 
                        (error, result) => {
                 if(error) {
                     reject(error);
