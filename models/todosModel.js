@@ -73,7 +73,7 @@ module.exports = {
     }, 
 
     /**
-     * This function deletes the todo in the database where the id is equals the id given
+     * This function deletes the todo in the database where the id is equals the id given.
      * 
      * @param {number} id 
      */
