@@ -6,8 +6,8 @@ const mysql = require('mysql');
 const con = dbConnection();
 
 con.on('connection', (connection) => {
-    console.log('new connection is made: ' + connection.threadId);
-})
+    console.log('new connection to todos is made: ' + connection.threadId);
+});
 
 module.exports = {
     /**

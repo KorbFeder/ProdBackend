@@ -2,6 +2,10 @@
 
 const mysql = require('mysql');
 
+con.on('connection', (connection) => {
+    console.log('new connection is made: ' + connection.threadId);
+});
+
 module.exports = () => {
     /**
      * creates an mysql pool with the same credentials as the mysql docker container
