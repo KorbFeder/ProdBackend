@@ -74,7 +74,7 @@ module.exports = {
                     reject(error);
                 }else{
                     console.log(`result: ${result}`);
-                    resolve(result);
+                    resolve(result.insertedId);
                 }
             });
         });
