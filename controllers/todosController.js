@@ -17,18 +17,14 @@ module.exports = {
         const id = req.params.id;
         if(!id) {
             todoModel.getAllTodos().then((result) => {
-                console.log(`result: ${result}`);
                 res.status(200).send(result);
             }).catch((error) => {
-                console.log(`an error has occoured: ${error}`);
                 res.status(405).send(error);
             });
         }else{
             todoModel.getTodo(id).then((result) => {
-                console.log(`result: ${result}`);
                 res.status(200).send(result);
             }).catch((error) => {
-                console.log(`an error has occoured: ${error}`);
                 res.status(405).send(error);
             });
         }
@@ -45,10 +41,8 @@ module.exports = {
         const todo = req.body;
         if(todo) {
             todoModel.saveTodo(todo).then((result) => {
-                console.log(`result: ${result}`);
                 res.status(200).send(result);
             }).catch((error) => {
-                console.log(`an error has occoured ${error}`);
                 res.status(405).send(error);
             });
         }else{
@@ -68,10 +62,8 @@ module.exports = {
         const id = req.params.id;
         if(id) {
             todoModel.deleteTodo(id).then((result) => {
-                console.log(`result ${result}`);
                 res.status(200).send(result);
             }).catch((error) => {
-                console.log(`an error has occoured ${error}`);
                 res.status(405).send(error);
             });
         }else{

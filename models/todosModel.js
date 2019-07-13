@@ -18,8 +18,11 @@ module.exports = {
         return new Promise((resolve, reject) => {
             con.query('SELECT * FROM todos', (error, result, fields) => {
                 if(error){
+                    console.log(`an error has occoured: ${error}`);
                     reject(error);
                 }else{
+                    console.log(`result: ${result}`);
+                    console.log(`fields: ${fields}`);
                     resolve(result);
                 }
             });
@@ -36,8 +39,11 @@ module.exports = {
         return new Promise((resolve, reject) => {
             con.query(`SELECT * FROM todos WHERE id = ${mysql.escape(id)}`, (error, result, fields) => {
                 if(error) {
+                    console.log(`an error has occoured: ${error}`);
                     reject(error);
                 }else{
+                    console.log(`result: ${result}`);
+                    console.log(`fields: ${fields}`);
                     resolve(result);
                 }
             });
@@ -64,8 +70,10 @@ module.exports = {
                         ${mysql.escape(todo.endDate)})`, 
                        (error, result) => {
                 if(error) {
+                    console.log(`an error has occoured: ${error}`);
                     reject(error);
                 }else{
+                    console.log(`result: ${result}`);
                     resolve(result);
                 }
             });
@@ -82,7 +90,9 @@ module.exports = {
             con.query(`DELETE FROM todos WHERE id = ${id}`, (error, result) => {
                 if(error) {
                     reject(error);
+                    console.log(`an error has occoured: ${error}`);
                 }else{
+                    console.log(`result: ${result}`);
                     resolve(result);
                 }
             })
