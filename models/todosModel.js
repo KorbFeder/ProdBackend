@@ -2,8 +2,12 @@
 
 const dbConnection = require('../config/dbConnection');
 const mysql = require('mysql');
+const {promisify} = require('util');
 
 const con = dbConnection();
+
+//convert every query into a promise
+const query = promisify(con.query).bind(con);
 
 con.on('connection', (connection) => {
     console.log('new connection to todos is made: ' + connection.threadId);
@@ -15,18 +19,7 @@ module.exports = {
      * in the rejected error. 
      */
     getAllTodos: function() {
-        return new Promise((resolve, reject) => {
-            con.query('SELECT * FROM todos', (error, result, fields) => {
-                if(error){
-                    console.log(`an error has occoured: ${error}`);
-                    reject(error);
-                }else{
-                    console.log(`result: ${result}`);
-                    console.log(`fields: ${fields}`);
-                    resolve(result);
-                }
-            });
-        });
+        return query('SELECT * FROM todos');
     },
 
     /**
@@ -36,18 +29,7 @@ module.exports = {
      * @param {number} id 
      */
     getTodo: function(id) {
-        return new Promise((resolve, reject) => {
-            con.query(`SELECT * FROM todos WHERE id = ${mysql.escape(id)}`, (error, result, fields) => {
-                if(error) {
-                    console.log(`an error has occoured: ${error}`);
-                    reject(error);
-                }else{
-                    console.log(`result: ${result}`);
-                    console.log(`fields: ${fields}`);
-                    resolve(result);
-                }
-            });
-        });
+        return query(`SELECT * FROM todos WHERE id = ${mysql.escape(id)}`)
     },
 
     /**
@@ -63,21 +45,10 @@ module.exports = {
      * @param {object} todo 
      */
     saveTodo: function(todo) {
-        return new Promise((resolve, reject) => {
-            con.query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate) 
+        return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate) 
                        VALUES (${mysql.escape(todo.id)}, ${mysql.escape(todo.isDone)}, 
                         ${mysql.escape(todo.todoMsg)}, ${mysql.escape(todo.importance)}, 
-                        ${mysql.escape(todo.endDate)})`, 
-                       (error, result) => {
-                if(error) {
-                    console.log(`an error has occoured: ${error}`);
-                    reject(error);
-                }else{
-                    console.log(`result: ${result}`);
-                    resolve(result.insertedId);
-                }
-            });
-        });
+                        ${mysql.escape(todo.endDate)})`);
     }, 
 
     /**
@@ -86,16 +57,6 @@ module.exports = {
      * @param {number} id 
      */
     deleteTodo: function(id) {
-        return new Promise((resolve, reject) => {
-            con.query(`DELETE FROM todos WHERE id = ${id}`, (error, result) => {
-                if(error) {
-                    reject(error);
-                    console.log(`an error has occoured: ${error}`);
-                }else{
-                    console.log(`result: ${result}`);
-                    resolve(result);
-                }
-            })
-        })
+        return query(`DELETE FROM todos WHERE id = ${id}`);
     }
 }

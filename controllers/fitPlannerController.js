@@ -21,6 +21,15 @@ module.exports = {
         }
     },
 
+    /**
+     * This function saves the trainingsPlans to the Database and than sends an response, if
+     * the save was successful the function will send the response object of each row saved.
+     * If not the Database will throw a reject error.
+     * 
+     * @param {object} req 
+     * @param {object} res 
+     * @param {function} next 
+     */
     post: function(req, res, next) {
         const trainingsPlan = req.body;
         fitPlannerModel.saveTrainingsPlan(trainingsPlan).then((result) => {

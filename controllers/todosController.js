@@ -17,14 +17,18 @@ module.exports = {
         const id = req.params.id;
         if(!id) {
             todoModel.getAllTodos().then((result) => {
+                console.log(`getting all todos was successful: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
+                console.log(`getting all todos had an error: ${JSON.stringify(error)}`);
                 res.status(405).send(error);
             });
         }else{
             todoModel.getTodo(id).then((result) => {
+                console.log(`getting one todo was successful: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
+                console.log(`getting one todo had an error: ${JSON.stringify(error)}`);
                 res.status(405).send(error);
             });
         }
@@ -41,8 +45,10 @@ module.exports = {
         const todo = req.body;
         if(todo) {
             todoModel.saveTodo(todo).then((result) => {
+                console.log(`saving a todo was successful: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
+                console.log(`saving a todo had an error: ${JSON.stringify(error)}`);
                 res.status(405).send(error);
             });
         }else{
@@ -62,8 +68,10 @@ module.exports = {
         const id = req.params.id;
         if(id) {
             todoModel.deleteTodo(id).then((result) => {
+                console.log(`deleting a todo was successfull: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
+                console.log(`deleting a todo had an error: ${JSON.stringify(error)}`);
                 res.status(405).send(error);
             });
         }else{
