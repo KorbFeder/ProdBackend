@@ -7,34 +7,56 @@ const con = dbConnection();
 
 const query = promisify(con.query).bind(con);
 
-con.on('conneciton', (connection) => {
-    console.log('new conneciton to fitPlanner is made: ' + connection.threadId);
+con.on('connection', (connection) => {
+    console.log('new connection to fitPlanner is made: ' + connection.threadId);
 });
 
 module.exports = {
     /**
      * This function gets all the Trainings plans of the Database and returns them in the resolve object of
-     * the Promise, if it failes it will return the error log in the reject object of the recjetion.
+     * the Promise, if it failed it will return the error log in the reject object of the rejection.
      */
     getAllTrainingsPlans: function() {
-        return new Promise((resolve, reject) => {
-            con.query('SELECT * FROM traningsPlanRows', (error, result, fields) => {
-                if(error) {
-                    console.log(`an error has occoured: ${JSON.stringify(error)}`);
-                    reject(error);
-                }else{
-                    console.log(`result: ${JSON.stringify(result)}`);
-                    console.log(`fields: ${JSON.stringify(fields)}`);
-                    resolve(result);
+        let planResult;
+        return query('SELECT * FROM trainingsPlanRows').then((result) => {
+            planResult = result;
+            return query('SELECT * FROM repeatitionsDone');            
+        }).then((result) => {
+            //inserts the array of repeatition into the table
+            result.forEach((row) => {
+                const index = planResult.findIndex(x => x.id === row.id);
+                if(index !== null && index !== undefined){
+                    if(planResult[index].repeatition) {
+                        planResult[index].repeatition.push(row.repeatition);
+                    }else{
+                        planResult[index].repeatition = [row.repeatition];
+                    }
                 }
+            });
+            return query('SELECT * FROM weightsUsed');
+        }).then((result) => {
+            return new Promise((resolve, reject) => {
+                //inserts the array of weights used into the table
+                result.forEach((row) => {
+                    const index = planResult.findIndex(x => x.id === row.id);
+                    if(index !== null && index !== undefined){
+                        if(planResult[index].weightsUsed){
+                            planResult[index].weightsUsed.push(row.weightUsed);
+                        } else {
+                            planResult[index].weightsUsed = [row.weightUsed];
+                        }
+                    }
+                });
+                const tables = arraySplitter(planResult);
+                resolve(tables);
             });
         });
     },
 
     /**
-     * This function gets the Trainings plans with the givne phase  and day of the Database and 
-     * returns them in the resolve object of the Promise, if it failes it will return the error 
-     * log in the reject object of the recjetion.
+     * This function gets the Trainings plans with the given phase  and day of the Database and 
+     * returns them in the resolve object of the Promise, if it fails it will return the error 
+     * log in the reject object of the rejection.
      * 
      * @param {number} phase
      * @param {number} day
@@ -67,22 +89,43 @@ module.exports = {
      *  
      * @param {object} trainigsPlan 
      */
-    saveTrainingsPlan: function(trainigsPlans) {
+    saveTrainingsPlan: async function(trainigsPlans) {
         let id;
         const promises = [];
-        for(const trainigsPlan of trainigsPlans){
-            promises.push(query((`INSERT INTO trainingsPlanRows(phase, dayNr, muscle, excercise, amountOfSets, repeatitions, pauseInbetween, startingWeight)
-                        VALUES(${mysql.escape(trainigsPlan.phase)}, ${mysql.escape(trainigsPlan.dayNr)}, 
-                        ${mysql.escape(trainigsPlan.muscle)}, ${mysql.escape(trainigsPlan.excercise)}, 
-                        ${mysql.escape(trainigsPlan.amountOfSets)}, ${mysql.escape(trainigsPlan.repeatitions)},
-                        ${mysql.escape(trainigsPlan.pauseInbetween)}, ${mysql.escape(trainigsPlan.startingWeight)})`)
+        for(const trainigPlan of trainigsPlans){
+            promises.push(await query((`INSERT INTO trainingsPlanRows(phase, dayNr, muscle, excercise, amountOfSets, repeatitions, pauseInbetween, startingWeight)
+                        VALUES(${mysql.escape(trainigPlan.phase)}, ${mysql.escape(trainigPlan.dayNr)}, 
+                        ${mysql.escape(trainigPlan.muscle)}, ${mysql.escape(trainigPlan.excercise)}, 
+                        ${mysql.escape(trainigPlan.amountOfSets)}, ${mysql.escape(trainigPlan.repeatitions)},
+                        ${mysql.escape(trainigPlan.pauseInbetween)}, ${mysql.escape(trainigPlan.startingWeight)})`)
             ).then((result) => {
                 id = result.insertId;
-                return query(`INSERT INTO repeatitionsDone(id, repeatition) VALUES(${id}, ?)`, trainigsPlan.repeatitionsDone.map(elem => [elem]));
+                return query(`INSERT INTO repeatitionsDone(id, repeatition) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem])]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed) VALUES (${id}, ?)`, trainigsPlan.weightsUsed.map(elem => [elem]));
+                return query(`INSERT INTO weightsUsed(id, weightUsed) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem])]);
             }));
         }
         return Promise.all(promises);
     } 
+}
+
+function arraySplitter(result) {
+    const allPlans = [];
+    result.sort((x, y) => x.phase - y.phase || x.dayNr - y.dayNr);
+    let phase = result[0].phase;
+    let dayNr = result[0].dayNr;
+    let trPlan = [];
+    for(const row of result) {
+        if(row.dayNr == dayNr && row.phase == phase) {
+            trPlan.push(row);
+        } else {
+            allPlans.push(trPlan);
+            trPlan = new Array();
+            phase = row.phase;
+            dayNr = row.dayNr;
+            trPlan.push(row);
+        }
+    }
+    allPlans.push(trPlan);
+    return allPlans;
 }
