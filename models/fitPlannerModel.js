@@ -11,6 +11,20 @@ con.on('connection', (connection) => {
     console.log('new connection to fitPlanner is made: ' + connection.threadId);
 });
 
+/** 
+ * The trainings plans have the following structure:
+ * (an array which holds some training plans, a training plan is an Array that contains the rows as object)
+ * [
+ *    [        //table-begin
+ *        {},  //row 
+ *        {},  //row
+ *    ],       //table-end
+ *    [
+ *        {},
+ *        {},
+ *    ],
+ * ]
+ * */
 module.exports = {
     /**
      * This function gets all the Trainings plans of the Database and returns them in the resolve object of
@@ -60,6 +74,23 @@ module.exports = {
     } 
 }
 
+/**
+ * Because the table rows are stored in one SQL-table, they have to be brought into the right JSON structure
+ * which means creating an array that contains an array (table) which has the rows as objects.
+ * This function needs the result object of the last sql query, it will return the object in the right Form
+ * [
+ *    [        //table-begin
+ *        {},  //row 
+ *        {},  //row
+ *    ],       //table-end
+ *    [
+ *        {},
+ *        {},
+ *    ],
+ * ]
+ * 
+ * @param {object} result 
+ */
 function arraySplitter(result) {
     const allPlans = [];
     result.sort((x, y) => x.phase - y.phase || x.dayNr - y.dayNr);
@@ -81,6 +112,14 @@ function arraySplitter(result) {
     return allPlans;
 }
 
+/**
+ * This helper function is used for either the get with params or the get without params.
+ * It will either give back all tables or just the one for which it was asked for.
+ * It needs an SQL query string as argument, that searches for some table/s.
+ * Returns a Promise which holds the table/s
+ * 
+ * @param {string} sql 
+ */
 function getTablesHelper(sql){
     let planResult;
     return query(sql).then((result) => {
