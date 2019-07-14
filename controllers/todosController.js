@@ -5,15 +5,16 @@ const todoModel = require('../models/todosModel');
 module.exports = {
     /**
      * This function gets the data from the model and sends it back to the frontend
-     * if an id is passed with the request, than it will return only 1 todo, if not
+     * if an id is passed with the request as param, than it will return only 1 todo, if not
      * it will return all todos in the response.
+     * for example if the Id would be '1':
+     * /api/todos/1
      * 
      * @param {object} req 
      * @param {object} res 
      * @param {function} next 
      */
     get: function(req, res, next) {
-        //save id request somewhere
         const id = req.params.id;
         if(!id) {
             todoModel.getAllTodos().then((result) => {
@@ -34,8 +35,8 @@ module.exports = {
         }
     },
     /**
-     * This function saves the todo to the database and sends an response depending on 
-     * if it succeeded.
+     * This function saves the todo to the database, it needs the data sent over the request body.
+     * If it succeeds it sends back an the mysql response object, if not it will reject it with an error.
      * 
      * @param {object} req 
      * @param {object} res 
@@ -57,8 +58,10 @@ module.exports = {
         }
     },
     /**
-     * This function deletes an object from the databse and sends an response depending
-     * on if it succeeded.
+     * This function deletes an object from the database and sends an response depending
+     * on if it succeeded. It needs an Id sent over the request params 
+     * for example to delete the todo with the id '1': 
+     * /api/todos/1
      * 
      * @param {object} req 
      * @param {object} res 
@@ -68,7 +71,7 @@ module.exports = {
         const id = req.params.id;
         if(id) {
             todoModel.deleteTodo(id).then((result) => {
-                console.log(`deleting a todo was successfull: ${JSON.stringify(result)}`);
+                console.log(`deleting a todo was successful: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
                 console.log(`deleting a todo had an error: ${JSON.stringify(error)}`);

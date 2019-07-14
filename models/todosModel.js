@@ -15,7 +15,7 @@ con.on('connection', (connection) => {
 
 module.exports = {
     /**
-     * This function returns all todos from the database, if an error occours the error will be found 
+     * This function returns all todos from the database, if an error occurs the error will be found 
      * in the rejected error. 
      */
     getAllTodos: function() {
@@ -23,7 +23,7 @@ module.exports = {
     },
 
     /**
-     * This method returns the specific todo with the the given ID, if an error occours, the error will be 
+     * This method returns the specific todo with the the given ID, if an error occurs, the error will be 
      * found in the rejected error.
      * 
      * @param {number} id 
@@ -33,7 +33,7 @@ module.exports = {
     },
 
     /**
-     * This method inserts a todo object into the database, if an error occours, the error will be found
+     * This method inserts a todo object into the database, if an error occurs, the error will be found
      * in the rejected error.
      * The todo object should contain the following attributes:
      * id: number

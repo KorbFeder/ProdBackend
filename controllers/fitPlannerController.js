@@ -33,7 +33,7 @@ module.exports = {
     post: function(req, res, next) {
         const trainingsPlan = req.body;
         fitPlannerModel.saveTrainingsPlan(trainingsPlan).then((result) => {
-            console.log(`inserted into trainigsPlan: ${JSON.stringify(result)}`);
+            console.log(`inserted into trainingsPlan: ${JSON.stringify(result)}`);
             res.status(200).send(result);
         }).catch((error) => {
             console.log(`error was thrown: ${JSON.stringify(error)}`);
