@@ -23,14 +23,12 @@ module.exports = {
 
     post: function(req, res, next) {
         const trainingsPlan = req.body;
-        if(trainingsPlan) {
-            Promise.all(fitPlannerModel.saveTrainingsPlan(trainingsPlan)).then((values) => {
-                console.log(values);
-                res.status(200).send(values);
-            }).catch((error) => {
-                console.log(error);
-                res.status(405).send(error);
-            })
-        }
+        fitPlannerModel.saveTrainingsPlan(trainingsPlan).then((result) => {
+            console.log(`inserted into trainigsPlan: ${JSON.stringify(result)}`);
+            res.status(200).send(result);
+        }).catch((error) => {
+            console.log(`error was thrown: ${JSON.stringify(error)}`);
+            res.status(405).send(error);
+        });
     }
 }
