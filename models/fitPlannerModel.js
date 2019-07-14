@@ -17,40 +17,7 @@ module.exports = {
      * the Promise, if it failed it will return the error log in the reject object of the rejection.
      */
     getAllTrainingsPlans: function() {
-        let planResult;
-        return query('SELECT * FROM trainingsPlanRows').then((result) => {
-            planResult = result;
-            return query('SELECT * FROM repeatitionsDone');            
-        }).then((result) => {
-            //inserts the array of repeatition into the table
-            result.forEach((row) => {
-                const index = planResult.findIndex(x => x.id === row.id);
-                if(index !== null && index !== undefined){
-                    if(planResult[index].repeatition) {
-                        planResult[index].repeatition.push(row.repeatition);
-                    }else{
-                        planResult[index].repeatition = [row.repeatition];
-                    }
-                }
-            });
-            return query('SELECT * FROM weightsUsed');
-        }).then((result) => {
-            return new Promise((resolve, reject) => {
-                //inserts the array of weights used into the table
-                result.forEach((row) => {
-                    const index = planResult.findIndex(x => x.id === row.id);
-                    if(index !== null && index !== undefined){
-                        if(planResult[index].weightsUsed){
-                            planResult[index].weightsUsed.push(row.weightUsed);
-                        } else {
-                            planResult[index].weightsUsed = [row.weightUsed];
-                        }
-                    }
-                });
-                const tables = arraySplitter(planResult);
-                resolve(tables);
-            });
-        });
+        return getTablesHelper('SELECT * FROM trainingsPlanRows');
     },
 
     /**
@@ -62,23 +29,7 @@ module.exports = {
      * @param {number} day
      */
     getTrainingsPlan: function(phase, day) {
-        return new Promise((resolve, reject) => {
-            con.query(`SELECT * 
-                       FROM trainingsPlanRows
-                       WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)}`,
-            (error, result, fields) => {
-                if(error) {
-                    console.log(`error in first query: ${JSON.stringify(error)}`);
-                    reject(error);
-                }else{
-                    console.log(`get TrainingsPlan first select query result: ${JSON.stringify(result)}`);
-                    console.log(`get TrainingsPlan first select query fields: ${JSON.stringify(fields)}`);
-//                    con.query(`SELECT w.*
-//                               FROM weights w, trainingsPlanRows t
-//                               WHERE w.id = ${result}`)
-                }
-            })
-        });
+        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE phase = ${phase} AND dayNr = ${day}`);
     },
 
     /**
@@ -128,4 +79,41 @@ function arraySplitter(result) {
     }
     allPlans.push(trPlan);
     return allPlans;
+}
+
+function getTablesHelper(sql){
+    let planResult;
+    return query(sql).then((result) => {
+        planResult = result;
+        return query('SELECT * FROM repeatitionsDone');            
+    }).then((result) => {
+        //inserts the array of repeatition into the table
+        result.forEach((row) => {
+            const index = planResult.findIndex(x => x.id === row.id);
+            if(index !== null && index !== undefined && index > -1){
+                if(planResult[index].repeatition) {
+                    planResult[index].repeatition.push(row.repeatition);
+                }else{
+                    planResult[index].repeatition = [row.repeatition];
+                }
+            }
+        });
+        return query('SELECT * FROM weightsUsed');
+    }).then((result) => {
+        return new Promise((resolve, reject) => {
+            //inserts the array of weights used into the table
+            result.forEach((row) => {
+                const index = planResult.findIndex(x => x.id === row.id);
+                if(index !== null && index !== undefined && index > -1){
+                    if(planResult[index].weightsUsed){
+                        planResult[index].weightsUsed.push(row.weightUsed);
+                    } else {
+                        planResult[index].weightsUsed = [row.weightUsed];
+                    }
+                }
+            });
+            const tables = arraySplitter(planResult);
+            resolve(tables);
+        });
+    });
 }
