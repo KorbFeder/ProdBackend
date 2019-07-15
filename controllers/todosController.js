@@ -36,7 +36,7 @@ module.exports = {
     },
     /**
      * This function saves the todo to the database, it needs the data sent over the request body.
-     * If it succeeds it sends back an the mysql response object, if not it will reject it with an error.
+     * If it succeeds it sends back an the todo object, if not it will reject it with an error.
      * 
      * @param {object} req 
      * @param {object} res 
@@ -53,8 +53,23 @@ module.exports = {
                 res.status(405).send(error);
             });
         }else{
-            console.log("request body was empty");
-            res.status(400).send("request body was empty")
+            console.log('request body was empty');
+            res.status(400).send('request body was empty');
+        }
+    },
+    put: function(req, res, next) {
+        const todo = req.body;
+        if(todo) {
+            todoModel.update(todo).then((result) => {
+                console.log(`updating the todo was a success: ${JSON.stringify(result)}`);
+                res.status(200).send(result);
+            }).catch((error) => {
+                console.log(`an error has happend: ${JSON.stringify(error)}`);
+                res.status(200).send(error);
+            });
+        }else{
+            console.log('request body was empty');
+            res.status(400).send('request body was empty');
         }
     },
     /**

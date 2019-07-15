@@ -36,6 +36,7 @@ module.exports = {
      * This method inserts a todo object into the database, if an error occurs, the error will be found
      * in the rejected error.
      * The todo object should contain the following attributes:
+     * This will return the inserted Object
      * id: number
      * isDone: boolean,
      * todoMsg: string,
@@ -48,15 +49,45 @@ module.exports = {
         return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate) 
                        VALUES (${mysql.escape(todo.id)}, ${mysql.escape(todo.isDone)}, 
                         ${mysql.escape(todo.todoMsg)}, ${mysql.escape(todo.importance)}, 
-                        ${mysql.escape(todo.endDate)})`);
+                        ${mysql.escape(todo.endDate)})`).then((result) => {
+                            return this.getTodo(result.insertId);
+                        });
     }, 
 
     /**
+     * This function updates an todo, with the given todo, but only if the todo already exists in the database.
+     * Than it will send the newly updated todo back.
+     * 
+     * @param {object} todo 
+     */
+    update: function(todo) {
+        return this.getTodo(todo.id).then((result) => {
+            if(result.length > 0){
+                return query(`UPDATE todos 
+                              SET isDone = ${mysql.escape(todo.isDone)}, todoMsg = ${mysql.escape(todo.todoMsg)},
+                                  importance = ${mysql.escape(todo.importance)}, endDate = ${mysql.escape(todo.endDate)}
+                              WHERE id = ${mysql.escape(todo.id)}`);
+
+            }else{
+                return new Promise((result, reject) => {
+                    reject('the id was not found')
+                });
+            }
+        }).then(() => {
+            return this.getTodo(todo.id);
+        });
+    },
+    /**
      * This function deletes the todo in the database where the id is equals the id given.
+     * This will return the id which was deleted.
      * 
      * @param {number} id 
      */
     deleteTodo: function(id) {
-        return query(`DELETE FROM todos WHERE id = ${id}`);
+        return query(`DELETE FROM todos WHERE id = ${id}`).then(() => {
+            return new Promise((resolve, reject) => {
+                resolve(id);
+            })
+        });
     }
 }

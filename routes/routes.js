@@ -12,6 +12,7 @@ router.get('/api/alive', aliveController);
 /** todo route, to manipulate todos on the database */
 router.get('/api/todos/:id?', todoController.get);
 router.post('/api/todos', todoController.post);
+router.put('/api/todos', todoController.put);
 router.delete('/api/todos/:id', todoController.delete);
 
 /** fitPlanner routes, to maniplulate the fitness plan / trainings plan */
