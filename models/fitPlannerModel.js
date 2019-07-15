@@ -50,7 +50,7 @@ module.exports = {
      * This function inserts a trainingsplan into the trainingsPlanRows table and also adds the reapitionsDone
      * and weightsUsed in their respective table. This is needed since both the last 2 are arrays and are needed
      * to be saved extra since they can be of dynamic size.
-     * It returns an array of Promises containing the Ids of the rows inserted into the table.
+     * Returns the saved trainings Plan.
      *  
      * @param {object} trainigsPlan 
      */
@@ -74,9 +74,39 @@ module.exports = {
     },
 
     /**
+     * This function updates a trainings plan if and than returns the updated trainings plan. If not then it
+     * will return a reject object
+     * 
+     * @param {object} trainigsPlans 
+     */
+    updateTrainingsPlan: async function(trainigsPlans) {
+        let id;
+        const promises = [];
+        for(const trainigPlan of trainigsPlans){
+            promises.push(await query(`UPDATE trainingsPlanRows SET
+                        phase = ${mysql.escape(trainigPlan.phase)}, dayNr = ${mysql.escape(trainigPlan.dayNr)}, 
+                        muscle = ${mysql.escape(trainigPlan.muscle)}, excercise = ${mysql.escape(trainigPlan.excercise)}, 
+                        amountOfSets = ${mysql.escape(trainigPlan.amountOfSets)}, repeatitions = ${mysql.escape(trainigPlan.repeatitions)},
+                        pauseInbetween = ${mysql.escape(trainigPlan.pauseInbetween)}, startingWeight = ${mysql.escape(trainigPlan.startingWeight)}
+                        WHERE id = ${mysql.escape(trainigPlan.id)}`).then((result) => {
+                id = trainigPlan.id;
+                return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(id)}`);
+            }).then((result) => {
+                return query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(id)}`);
+            }).then((result) => {
+                return query(`INSERT INTO repeatitionsDone(id, repeatition) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem])]);
+            }).then((result) => {
+                return query(`INSERT INTO weightsUsed(id, weightUsed) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem])]);
+            }));
+        }
+        return Promise.all(promises);
+    },
+
+    /**
      * This function deletes a trainingsPlan, if the trainingsPlan was not found it will return an sql error.
      * This function first gets all trainingsPlans and than deletes depending of the id of each row of an 
      * trainingsPlan all elements from the other 2 tables, repeatitionsDone and weightsUsed.
+     * This returns the Ids of the deleted rows
      * 
      * @param {number} phase 
      * @param {number} day 
@@ -89,6 +119,10 @@ module.exports = {
                     return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(row.id)}`);
                 }).then((result) => {
                     return query(`DELETE FROM trainingsPlanRows WHERE id = ${mysql.escape(row.id)}`);
+                }).then((result) => {
+                    return new Promise((resolve, reject) => {
+                        resolve(id);
+                    });
                 }));               
             });
             return Promise.all(promises);

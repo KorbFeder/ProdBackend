@@ -36,7 +36,7 @@ module.exports = {
 
     /**
      * This function saves the trainingsPlans to the Database and than sends an response, if
-     * the save was successful the function will send the response object of each row saved.
+     * the save was successful the function will respond with the new table.
      * If not the Database will throw a reject error.
      * 
      * @param {object} req 
@@ -55,9 +55,29 @@ module.exports = {
     },
 
     /**
+     * This function updates the trainings plan in the database, than sends a response, if the 
+     * update was successful than it will return the new trainings plan.
+     * 
+     * @param {object} req 
+     * @param {object} res 
+     * @param {function} next 
+     */
+    put: function(req, res, next) {
+        const trainingsPlan = req.body;
+        fitPlannerModel.updateTrainingsPlan(trainingsPlan).then((result) => {
+            console.log(`updated trainingsPlan: ${JSON.stringify(result)}`);
+            res.status(200).send(result);
+        }).catch((error) => {
+            console.log(`error was thrown: ${JSON.stringify(error)}`);
+            res.status(405).send(error);
+        });
+    },
+
+    /**
      * This function deletes an object, will not return anything, but will throw an error, if something happened.
      * It needs an phase and a day as req.param, if those are empty nothing will get deleted.
      * The Url should have the form: /api/fit/1/2 (where '1' is the phase and '2' is the day)
+     * This returns the id of the deleted trainings plan.
      * 
      * @param {object} req 
      * @param {object} res 

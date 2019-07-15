@@ -18,7 +18,8 @@ router.delete('/api/todos/:id', todoController.delete);
 /** fitPlanner routes, to maniplulate the fitness plan / trainings plan */
 router.get('/api/fit/:phase?/:day?', fitPlannerController.get);
 router.post('/api/fit', fitPlannerController.post);
-router.delete('/api/fit/:phase?/:day?', fitPlannerController.delete);
+router.put('/api/fit', fitPlannerController.put);
+router.delete('/api/fit/:phase/:day', fitPlannerController.delete);
 
 module.exports = router;
 
