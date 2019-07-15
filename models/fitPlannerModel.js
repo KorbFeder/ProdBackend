@@ -43,7 +43,7 @@ module.exports = {
      * @param {number} day
      */
     getTrainingsPlan: function(phase, day) {
-        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE phase = ${phase} AND dayNr = ${day}`);
+        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)}`);
     },
 
     /**
@@ -71,7 +71,29 @@ module.exports = {
             }));
         }
         return Promise.all(promises);
-    } 
+    },
+
+    /**
+     * This function deletes a trainingsPlan, if the trainingsPlan was not found it will return an sql error.
+     * This function first gets all trainingsPlans and than deletes depending of the id of each row of an 
+     * trainingsPlan all elements from the other 2 tables, repeatitionsDone and weightsUsed.
+     * 
+     * @param {number} phase 
+     * @param {number} day 
+     */
+    deleteTrainingsPlan: async function(phase, day) {
+        return query(`SELECT * FROM trainingsPlanRows WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)}`).then(async (result) => {
+            const promises = [];
+            result.forEach(async (row) => {
+                promises.push(await query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(row.id)}`).then((result) => {
+                    return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(row.id)}`);
+                }).then((result) => {
+                    return query(`DELETE FROM trainingsPlanRows WHERE id = ${mysql.escape(row.id)}`);
+                }));               
+            });
+            return Promise.all(promises);
+        })
+    }
 }
 
 /**

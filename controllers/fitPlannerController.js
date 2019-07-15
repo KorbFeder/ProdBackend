@@ -52,5 +52,31 @@ module.exports = {
             console.log(`error was thrown: ${JSON.stringify(error)}`);
             res.status(405).send(error);
         });
+    },
+
+    /**
+     * This function deletes an object, will not return anything, but will throw an error, if something happened.
+     * It needs an phase and a day as req.param, if those are empty nothing will get deleted.
+     * The Url should have the form: /api/fit/1/2 (where '1' is the phase and '2' is the day)
+     * 
+     * @param {object} req 
+     * @param {object} res 
+     * @param {function} next 
+     */
+    delete: function(req, res, next) {
+        const phase = req.params.phase;
+        const day = req.params.day;
+        if(phase && day) {
+            fitPlannerModel.deleteTrainingsPlan(phase, day).then((result) => {
+                console.log(`deleted trainingsPlan: ${JSON.stringify(result)}`);
+                res.status(200).send(result);
+            }).catch((error) => {
+                console.log(`error when trying to delete trainingsPlan: ${JSON.stringify(error)}`);
+                res.status(405).send(result);
+            });
+        }else{
+            console.log(`no day and phase was set when trying to delete a trainings plan`);
+            res.status(400).send(result);
+        }
     }
 }
