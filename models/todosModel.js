@@ -46,6 +46,10 @@ module.exports = {
      * @param {object} todo 
      */
     saveTodo: function(todo) {
+        //the todo.endDate is sent as string and needs to be converted into the right format first
+        if(todo.endDate !== null){
+            todo.endDate = new Date(todo.endDate);       
+        }
         return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate) 
                        VALUES (${mysql.escape(todo.id)}, ${mysql.escape(todo.isDone)}, 
                         ${mysql.escape(todo.todoMsg)}, ${mysql.escape(todo.importance)}, 
