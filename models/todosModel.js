@@ -31,7 +31,9 @@ module.exports = {
      * in the rejected error. 
      */
     getAllTodos: function() {
-        return query('SELECT * FROM todos');
+        return query('SELECT * FROM todos').then((result) => {
+            return isDoneHelper(result);
+        });
     },
 
     /**
@@ -41,7 +43,9 @@ module.exports = {
      * @param {number} id 
      */
     getTodo: function(id) {
-        return query(`SELECT * FROM todos WHERE id = ${mysql.escape(id)}`)
+        return query(`SELECT * FROM todos WHERE id = ${mysql.escape(id)}`).then((result) => {
+            return isDoneHelper(result);
+        })
     },
 
     /**
@@ -57,12 +61,15 @@ module.exports = {
         if(todo.endDate !== null){
             todo.endDate = new Date(todo.endDate);       
         }
+        //optionalValueHelper(todo);
         return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate, details, imgUrl) 
                        VALUES (${mysql.escape(todo.id)}, ${mysql.escape(todo.isDone)}, 
                         ${mysql.escape(todo.todoMsg)}, ${mysql.escape(todo.importance)}, 
                         ${mysql.escape(todo.endDate)}, ${mysql.escape(todo.details)},
-                        ${mysql.escape(imgUrl)})`).then((result) => {
+                        ${mysql.escape(todo.imgUrl)})`).then((result) => {
                             return this.getTodo(result.insertId);
+                        }).then((result) => {
+                            return isDoneHelper(result);
                         });
     }, 
 
@@ -73,6 +80,7 @@ module.exports = {
      * @param {object} todo 
      */
     update: function(todo) {
+        optionalValueHelper(todo);
         return this.getTodo(todo.id).then((result) => {
             if(result.length > 0){
                 return query(`UPDATE todos 
@@ -88,6 +96,8 @@ module.exports = {
             }
         }).then(() => {
             return this.getTodo(todo.id);
+        }).then((result) => {
+            return isDoneHelper(result);
         });
     },
     /**
@@ -103,4 +113,22 @@ module.exports = {
             })
         });
     }
+}
+
+/**
+ * Helper function to convert binary data stored in database (0 or 1) into true or false.
+ * 
+ * @param {Array} result 
+ */
+function isDoneHelper(result) {
+    return new Promise((resolve, reject) => {
+        for(let todo of result) {
+            if(todo.isDone === 0) {
+                todo.isDone = false;
+            }else if(todo.isDone === 1) {
+                todo.isDone = true;
+            }        
+        }
+        resolve(result);
+    });
 }
