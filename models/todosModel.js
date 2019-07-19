@@ -4,6 +4,18 @@ const dbConnection = require('../config/dbConnection');
 const mysql = require('mysql');
 const {promisify} = require('util');
 
+/**
+ * The todo model Object looks like this:
+ * id: number
+ * isDone: boolean,
+ * todoMsg: string,
+ * importance: int,
+ * endDate: Date,
+ * details: string,
+ * imgUrl: string,
+ */
+
+
 const con = dbConnection();
 
 //convert every query into a promise
@@ -37,11 +49,6 @@ module.exports = {
      * in the rejected error.
      * The todo object should contain the following attributes:
      * This will return the inserted Object
-     * id: number
-     * isDone: boolean,
-     * todoMsg: string,
-     * importance: int,
-     * endDate: Date
      *  
      * @param {object} todo 
      */
@@ -50,10 +57,11 @@ module.exports = {
         if(todo.endDate !== null){
             todo.endDate = new Date(todo.endDate);       
         }
-        return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate) 
+        return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate, details, imgUrl) 
                        VALUES (${mysql.escape(todo.id)}, ${mysql.escape(todo.isDone)}, 
                         ${mysql.escape(todo.todoMsg)}, ${mysql.escape(todo.importance)}, 
-                        ${mysql.escape(todo.endDate)})`).then((result) => {
+                        ${mysql.escape(todo.endDate)}, ${mysql.escape(todo.details)},
+                        ${mysql.escape(imgUrl)})`).then((result) => {
                             return this.getTodo(result.insertId);
                         });
     }, 
@@ -69,7 +77,8 @@ module.exports = {
             if(result.length > 0){
                 return query(`UPDATE todos 
                               SET isDone = ${mysql.escape(todo.isDone)}, todoMsg = ${mysql.escape(todo.todoMsg)},
-                                  importance = ${mysql.escape(todo.importance)}, endDate = ${mysql.escape(todo.endDate)}
+                                  importance = ${mysql.escape(todo.importance)}, endDate = ${mysql.escape(todo.endDate)},
+                                  details = ${mysql.escape(todo.details)}, imgUrl = ${mysql.imgUrl}
                               WHERE id = ${mysql.escape(todo.id)}`);
 
             }else{
