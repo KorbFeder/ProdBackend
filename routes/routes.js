@@ -7,7 +7,7 @@ const aliveController = require('../controllers/aliveController');
 const fitPlannerController = require('../controllers/fitPlannerController');
 
 /** alive route, for frontend to see if backend is reachable */
-router.get('/api/alive', aliveController); 
+//router.get('/api/alive', aliveController); 
 
 /** todo route, to manipulate todos on the database */
 router.get('/api/todos/:id?', todoController.get);
