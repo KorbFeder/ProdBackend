@@ -80,13 +80,15 @@ module.exports = {
      * @param {object} todo 
      */
     update: function(todo) {
-        optionalValueHelper(todo);
+        if(todo.endDate !== null){
+            todo.endDate = new Date(todo.endDate);       
+        }
         return this.getTodo(todo.id).then((result) => {
             if(result.length > 0){
                 return query(`UPDATE todos 
                               SET isDone = ${mysql.escape(todo.isDone)}, todoMsg = ${mysql.escape(todo.todoMsg)},
                                   importance = ${mysql.escape(todo.importance)}, endDate = ${mysql.escape(todo.endDate)},
-                                  details = ${mysql.escape(todo.details)}, imgUrl = ${mysql.imgUrl}
+                                  details = ${mysql.escape(todo.details)}, imgUrl = ${mysql.escape(todo.imgUrl)}
                               WHERE id = ${mysql.escape(todo.id)}`);
 
             }else{
