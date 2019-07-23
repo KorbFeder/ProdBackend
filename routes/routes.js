@@ -5,6 +5,7 @@ const router = express.Router();
 const todoController = require('../controllers/todosController');
 const aliveController = require('../controllers/aliveController');
 const fitPlannerController = require('../controllers/fitPlannerController');
+const fileFolder = require('../config/constants').fileFolder;
 
 /** alive route, for frontend to see if backend is reachable */
 //router.get('/api/alive', aliveController); 
@@ -16,6 +17,7 @@ router.put('/api/todos', todoController.put);
 router.delete('/api/todos/:id', todoController.delete);
 /** todo file-upload */
 router.post('/api/todos/file', todoController.upload);
+router.get(`/api/todos/file${fileFolder}/:file`, todoController.download);
 
 /** fitPlanner routes, to maniplulate the fitness plan / trainings plan */
 router.get('/api/fit/:phase?/:day?', fitPlannerController.get);

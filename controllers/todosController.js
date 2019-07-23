@@ -1,5 +1,6 @@
 'use strict'
 
+const fileFolder = require('../config/constants').fileFolder;
 const upload = require('../config/multerConfig').any();
 const todoModel = require('../models/todosModel');
 
@@ -99,15 +100,39 @@ module.exports = {
         }
     },
 
+    /**
+     * This function uploads an file to the file storage and returns the file information
+     * 
+     * @param {object} req 
+     * @param {object} res 
+     * @param {function} next 
+     */
     upload: function(req, res, next) {
         upload(req, res, (err) => {
             if(err) {
                 console.log(`error in uploading file: ${err}`);
                 res.status(400).send(`no file in request ${err}`);
             } else {
-                console.log(`file was uploaded: ${JSON.stringify(req.files)}`)
-                res.status(200).send(req.files);
+                console.log(`file was uploaded: ${JSON.stringify(req.files[0])}`)
+                res.status(200).send(req.files[0]);
             }
         });
+    },
+
+    download: function(req, res, next) {
+        const fileName = req.params.file;
+        if(fileName) {
+            res.download(`${fileFolder}/${fileName}`, (err) => {
+                if(err) {
+                    console.log(`an error has ocurred when downloading a file: ${err}`);
+                    res.status(405).send(`an error has ocurred when downloading a file: ${err}`);
+                }else{
+                    console.log('download was successful');
+                }
+            });
+        } else {
+            console.log('filename was not set');
+            res.status(400).send('no filename set');
+        }
     }
 }
