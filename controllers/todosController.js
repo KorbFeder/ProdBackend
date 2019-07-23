@@ -1,5 +1,6 @@
 'use strict'
 
+const upload = require('../config/multerConfig').any();
 const todoModel = require('../models/todosModel');
 
 module.exports = {
@@ -96,5 +97,17 @@ module.exports = {
             console.log("id param was not set");
             res.status(400).send("request param was not set");
         }
+    },
+
+    upload: function(req, res, next) {
+        upload(req, res, (err) => {
+            if(err) {
+                console.log(`error in uploading file: ${err}`);
+                res.status(400).send(`no file in request ${err}`);
+            } else {
+                console.log(`file was uploaded: ${JSON.stringify(req.files)}`)
+                res.status(200).send(req.files);
+            }
+        });
     }
 }
