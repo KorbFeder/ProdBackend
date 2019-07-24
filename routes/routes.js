@@ -18,6 +18,7 @@ router.delete('/api/todos/:id', todoController.delete);
 /** todo file-upload */
 router.post('/api/todos/file', todoController.upload);
 router.get(`/api/todos/file${fileFolder}/:file`, todoController.download);
+router.delete(`/api/todos/file${fileFolder}/:file`, todoController.deleteFile);
 
 /** fitPlanner routes, to maniplulate the fitness plan / trainings plan */
 router.get('/api/fit/:phase?/:day?', fitPlannerController.get);
