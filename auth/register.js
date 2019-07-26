@@ -1,9 +1,12 @@
 'use strict'
 const userModel = require('../models/userModel');
 
+/**
+ * Function to create a user
+ */
 module.exports = (req, res) => {
-    if(req.body) {
-        userModel.createUser(req.body).then((result) => {
+    if(req.body && req.body.user) {
+        userModel.createUser(req.body.user).then((result) => {
             console.log(`user has been created: ${JSON.stringify(result)}`)
             res.status(200).send(result);
         }).catch((err) => {
