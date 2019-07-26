@@ -23,8 +23,8 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
-    console.log('invalid token');
-    res.status(401).send('invalid token...');
+    console.log(`invalid token ${JSON.stringify(err)}`);
+    res.status(401).send(`invalid token... ${err}`);
   }
   // set locals, only providing error in development
   res.locals.message = err.message;

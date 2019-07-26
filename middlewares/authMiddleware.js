@@ -7,5 +7,4 @@ module.exports = () => {
     const RSA_PUBLIC_KEY = fs.readFileSync(jsonPath, 'utf8');
 
     return expressJwt({secret: RSA_PUBLIC_KEY});
-
 }
