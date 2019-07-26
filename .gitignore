@@ -3,6 +3,9 @@
 /uploads/*
 !/uploads/.gitkeep
 
+/keys/*
+!/keys/.gitkeep
+
 # IDEs and editors
 /.idea
 .project
