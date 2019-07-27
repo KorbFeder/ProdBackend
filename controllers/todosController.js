@@ -19,8 +19,9 @@ module.exports = {
      */
     get: function(req, res, next) {
         const id = req.params.id;
+        const userId = Number(req.user.sub);
         if(!id) {
-            todoModel.getAllTodos().then((result) => {
+            todoModel.getAllTodos(userId).then((result) => {
                 console.log(`getting all todos was successful: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
@@ -28,7 +29,7 @@ module.exports = {
                 res.status(405).send(error);
             });
         }else{
-            todoModel.getTodo(id).then((result) => {
+            todoModel.getTodo(id, userId).then((result) => {
                 console.log(`getting one todo was successful: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
@@ -47,6 +48,7 @@ module.exports = {
      */
     post: function(req, res, next) {
         const todo = req.body;
+        todo.userId = Number(req.user.sub);
         if(todo) {
             todoModel.saveTodo(todo).then((result) => {
                 console.log(`saving a todo was successful: ${JSON.stringify(result)}`);
@@ -70,6 +72,7 @@ module.exports = {
      */
     put: function(req, res, next) {
         const todo = req.body;
+        todo.userId = Number(req.user.sub);
         if(todo) {
             todoModel.update(todo).then((result) => {
                 console.log(`updating the todo was a success: ${JSON.stringify(result)}`);
@@ -95,8 +98,9 @@ module.exports = {
      */
     delete: function(req, res, next) {
         const id = req.params.id;
+        const userId = Number(req.user.sub);
         if(id) {
-            todoModel.deleteTodo(id).then((result) => {
+            todoModel.deleteTodo(id, userId).then((result) => {
                 console.log(`deleting a todo was successful: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {

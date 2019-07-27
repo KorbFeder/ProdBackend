@@ -30,8 +30,8 @@ module.exports = {
      * This function returns all todos from the database, if an error occurs the error will be found 
      * in the rejected error. 
      */
-    getAllTodos: function() {
-        return query('SELECT * FROM todos').then((result) => {
+    getAllTodos: function(userId) {
+        return query(`SELECT * FROM todos WHERE userId = ${mysql.escape(userId)}`).then((result) => {
             return isDoneHelper(result);
         });
     },
@@ -42,8 +42,8 @@ module.exports = {
      * 
      * @param {number} id 
      */
-    getTodo: function(id) {
-        return query(`SELECT * FROM todos WHERE id = ${mysql.escape(id)}`).then((result) => {
+    getTodo: function(id, userId) {
+        return query(`SELECT * FROM todos WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`).then((result) => {
             return isDoneHelper(result);
         })
     },
@@ -61,13 +61,12 @@ module.exports = {
         if(todo.endDate !== null){
             todo.endDate = new Date(todo.endDate);       
         }
-        //optionalValueHelper(todo);
-        return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate, details, imgUrl) 
+        return query(`INSERT INTO todos(id, isDone, todoMsg, importance, endDate, details, imgUrl, userId) 
                        VALUES (${mysql.escape(todo.id)}, ${mysql.escape(todo.isDone)}, 
                         ${mysql.escape(todo.todoMsg)}, ${mysql.escape(todo.importance)}, 
                         ${mysql.escape(todo.endDate)}, ${mysql.escape(todo.details)},
-                        ${mysql.escape(todo.imgUrl)})`).then((result) => {
-                            return this.getTodo(result.insertId);
+                        ${mysql.escape(todo.imgUrl)}, ${mysql.escape(todo.userId)})`).then((result) => {
+                            return this.getTodo(result.insertId, todo.userId);
                         }).then((result) => {
                             return isDoneHelper(result);
                         });
@@ -83,13 +82,13 @@ module.exports = {
         if(todo.endDate !== null){
             todo.endDate = new Date(todo.endDate);       
         }
-        return this.getTodo(todo.id).then((result) => {
+        return this.getTodo(todo.id, todo.userId).then((result) => {
             if(result.length > 0){
                 return query(`UPDATE todos 
                               SET isDone = ${mysql.escape(todo.isDone)}, todoMsg = ${mysql.escape(todo.todoMsg)},
                                   importance = ${mysql.escape(todo.importance)}, endDate = ${mysql.escape(todo.endDate)},
                                   details = ${mysql.escape(todo.details)}, imgUrl = ${mysql.escape(todo.imgUrl)}
-                              WHERE id = ${mysql.escape(todo.id)}`);
+                              WHERE id = ${mysql.escape(todo.id)} AND userId = ${todo.userId}`);
 
             }else{
                 return new Promise((result, reject) => {
@@ -97,7 +96,7 @@ module.exports = {
                 });
             }
         }).then(() => {
-            return this.getTodo(todo.id);
+            return this.getTodo(todo.id, todo.userId);
         }).then((result) => {
             return isDoneHelper(result);
         });
@@ -108,8 +107,8 @@ module.exports = {
      * 
      * @param {number} id 
      */
-    deleteTodo: function(id) {
-        return query(`DELETE FROM todos WHERE id = ${id}`).then(() => {
+    deleteTodo: function(id, userId) {
+        return query(`DELETE FROM todos WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`).then(() => {
             return new Promise((resolve, reject) => {
                 resolve(id);
             })
