@@ -36,7 +36,8 @@ module.exports = (req, res) => {
 
         res.status(200).json({
             idToken: jwtBearerToken,
-            expiresIn: expires
+            expiresIn: expires,
+            userId
         })
     // no access with those credentials
     }).catch((err) => {
