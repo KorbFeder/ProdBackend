@@ -9,6 +9,12 @@ const con = dbConnection();
 const query = promisify(con.query).bind(con);
 
 module.exports = {
+    /**
+     * This function gets either all foods or just one depending on wether the id field is set.
+     * 
+     * @param {number} id 
+     * @param {number} userId 
+     */
     getOwnFood: function(id, userId) {
         if(!id) {
             return query(`SELECT * FROM ownFood WHERE userId = ${mysql.escape(userId)}`);
@@ -17,6 +23,11 @@ module.exports = {
         }
     },
 
+    /**
+     * This function updates a food.
+     * 
+     * @param {ownFood} ownFood 
+     */
     update: function(ownFood) {
         return query(`UPDATE ownFood 
                       SET foodName = ${mysql.escape(ownFood.foodName)}, description = ${mysql.escape(ownFood.description)},
@@ -27,6 +38,11 @@ module.exports = {
                       });
     },
 
+    /**
+     * This function saves a food.
+     * 
+     * @param {ownFood} ownFood 
+     */
     saveOwnFood: function(ownFood) {
         return query(`INSERT INTO ownFood(id, foodName, description, ManufacName, fat, carb, protein, userId)
                       VALUES (${mysql.escape(ownFood.id)}, ${mysql.escape(ownFood.foodName)}, ${mysql.escape(ownFood.description)},
@@ -36,6 +52,12 @@ module.exports = {
                       });
     },
 
+    /**
+     * This function deletes a food.
+     * 
+     * @param {number} id 
+     * @param {number} userId 
+     */
     delete: function(id, userId) {
         return query(`DELETE FROM ownFood WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`).then((result) => {
             return new Promise((resolve, reject) => {

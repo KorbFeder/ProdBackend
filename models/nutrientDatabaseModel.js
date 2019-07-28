@@ -9,6 +9,13 @@ const con = nutrientDatabaseConnection();
 const query = promisify(con.query).bind(con);
 
 module.exports = {
+    /**
+     * This function gets the food object array from the database depending on wether it could find a food
+     * with the correct name.
+     * 
+     * @param {string} name 
+     * @param {string} manufacturer 
+     */
     getFood: function(name, manufacturer) {
         let manufSearch = '';
         if(manufacturer) {
@@ -20,6 +27,11 @@ module.exports = {
                       WHERE ComName LIKE '%${name}%' OR Shrt_Desc LIKE '%${name}%' ${mysql.escape(manufSearch)}`);
     },
 
+    /**
+     * This function gets the nutrients from the database depending on the food number.
+     * 
+     * @param {number} NDB_No 
+     */
     getNutr: function(NDB_No) {
         return query(`SELECT data.Nutr_val, def.Units, def.Tagname, def.NutrDesc
                       FROM NUT_DATA data JOIN NUTR_DEF def ON def.Nutr_No = data.Nutr_No
