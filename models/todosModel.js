@@ -88,8 +88,7 @@ module.exports = {
                               SET isDone = ${mysql.escape(todo.isDone)}, todoMsg = ${mysql.escape(todo.todoMsg)},
                                   importance = ${mysql.escape(todo.importance)}, endDate = ${mysql.escape(todo.endDate)},
                                   details = ${mysql.escape(todo.details)}, imgUrl = ${mysql.escape(todo.imgUrl)}
-                              WHERE id = ${mysql.escape(todo.id)} AND userId = ${todo.userId}`);
-
+                              WHERE id = ${mysql.escape(todo.id)} AND userId = ${mysql.escape(todo.userId)}`);
             }else{
                 return new Promise((result, reject) => {
                     reject('the id was not found')

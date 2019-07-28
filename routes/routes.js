@@ -11,6 +11,7 @@ const login = require('../auth/login');
 const register = require('../auth/register');
 const authMiddleware = require('../middlewares/authMiddleware')();
 const nutrientController = require('../controllers/nutrientDatabaseController');
+const ownFoodController = require('../controllers/ownFoodController');
 
 /** alive route, for frontend to see if backend is reachable */
 //router.get('/api/alive', aliveController); 
@@ -34,6 +35,11 @@ router.get('/api/fit/:phase?/:day?', authMiddleware, fitPlannerController.get);
 router.post('/api/fit', authMiddleware, fitPlannerController.post);
 router.put('/api/fit', authMiddleware, fitPlannerController.put);
 router.delete('/api/fit/:phase/:day', authMiddleware, fitPlannerController.delete);
+
+router.get('/api/ownfood/:id?', ownFoodController.get);
+router.post('/api/ownfood', ownFoodController.post);
+router.put('/api/ownfood', ownFoodController.put);
+router.delete('/api/ownfood/:id', ownFoodController.delete);
 
 /** food routes */
 router.get('/api/food/:id?', authMiddleware, foodController.get);
