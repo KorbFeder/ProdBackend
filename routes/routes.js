@@ -10,6 +10,7 @@ const fileFolder = require('../config/constants').fileFolder;
 const login = require('../auth/login');
 const register = require('../auth/register');
 const authMiddleware = require('../middlewares/authMiddleware')();
+const nutrientController = require('../controllers/nutrientDatabaseController');
 
 /** alive route, for frontend to see if backend is reachable */
 //router.get('/api/alive', aliveController); 
@@ -40,6 +41,10 @@ router.post('/api/food', authMiddleware, foodController.post);
 router.put('/api/food', authMiddleware, foodController.put);
 router.delete('/api/food/:id', authMiddleware, foodController.delete);
 
+/** nutrient database route */
+//todo authentication right now disabled since debugging with postman wouldn't be possible
+router.get('/api/nutr/food/:name/:manufac?', nutrientController.get);
+router.get('/api/nutr/nutr/:NDB_No', nutrientController.getNutr);
 
 
 module.exports = router;
