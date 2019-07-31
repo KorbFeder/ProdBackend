@@ -17,14 +17,14 @@ module.exports = {
      * @param {string} manufacturer 
      */
     getFood: function(name, manufacturer) {
-        let manufSearch = '';
+        let manufSearch = `ComName LIKE '%${name}%' OR Shrt_Desc LIKE '%${name}%'`;
         if(manufacturer) {
-            manufSearch = `OR ManufacName LIKE '%${manufacturer}%'`;
+            manufSearch += ` AND ManufacName LIKE '%${manufacturer}%'`;
         }
         return query(`SELECT f.NDB_No, f.ComName, f.Shrt_Desc, f.Long_Desc, f.ManufacName, f.SciName, f.N_Factor, f.Pro_Factor,
                         f.Fat_Factor, f.CHO_Factor, g.FdGrp_Desc
                       FROM FOOD_DES f JOIN FD_GROUP g ON g.FdGrp_Cd = f.FdGrp_Cd
-                      WHERE ComName LIKE '%${name}%' OR Shrt_Desc LIKE '%${name}%' ${mysql.escape(manufSearch)}`);
+                      WHERE ${(manufSearch)}`);
     },
 
     /**
