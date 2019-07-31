@@ -3,8 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const todoController = require('../controllers/todosController');
-const aliveController = require('../controllers/aliveController');
-const foodController = require('../controllers/foodController');
+const dailyNutrController = require('../controllers/dailyNutrController');
 const fitPlannerController = require('../controllers/fitPlannerController');
 const fileFolder = require('../config/constants').fileFolder;
 const login = require('../auth/login');
@@ -12,9 +11,6 @@ const register = require('../auth/register');
 const authMiddleware = require('../middlewares/authMiddleware')();
 const nutrientController = require('../controllers/nutrientDatabaseController');
 const ownFoodController = require('../controllers/ownFoodController');
-
-/** alive route, for frontend to see if backend is reachable */
-//router.get('/api/alive', aliveController); 
 
 /** authentication routes */
 router.post('/api/login', login);
@@ -36,21 +32,20 @@ router.post('/api/fit', authMiddleware, fitPlannerController.post);
 router.put('/api/fit', authMiddleware, fitPlannerController.put);
 router.delete('/api/fit/:phase/:day', authMiddleware, fitPlannerController.delete);
 
-router.get('/api/ownfood/:id?', ownFoodController.get);
-router.post('/api/ownfood', ownFoodController.post);
-router.put('/api/ownfood', ownFoodController.put);
-router.delete('/api/ownfood/:id', ownFoodController.delete);
+router.get('/api/ownfood/:id?', authMiddleware, ownFoodController.get);
+router.post('/api/ownfood', authMiddleware, ownFoodController.post);
+router.put('/api/ownfood', authMiddleware, ownFoodController.put);
+router.delete('/api/ownfood/:id', authMiddleware, ownFoodController.delete);
 
 /** food routes */
-router.get('/api/food/:id?', authMiddleware, foodController.get);
-router.post('/api/food', authMiddleware, foodController.post);
-router.put('/api/food', authMiddleware, foodController.put);
-router.delete('/api/food/:id', authMiddleware, foodController.delete);
+router.get('/api/daily/:date', authMiddleware, dailyNutrController.get);
+router.post('/api/daily', authMiddleware, dailyNutrController.post);
+router.put('/api/daily', authMiddleware, dailyNutrController.put);
+router.delete('/api/daily/:date', authMiddleware, dailyNutrController.delete);
 
 /** nutrient database route */
-//todo authentication right now disabled since debugging with postman wouldn't be possible
-router.get('/api/nutr/food/:name/:manufac?', nutrientController.get);
-router.get('/api/nutr/nutr/:NDB_No', nutrientController.getNutr);
+router.get('/api/nutr/food/:name/:manufac?', authMiddleware, nutrientController.get);
+router.get('/api/nutr/nutr/:NDB_No', authMiddleware, nutrientController.getNutr);
 
 
 module.exports = router;

@@ -15,12 +15,16 @@ module.exports = {
      * @param {number} id 
      * @param {number} userId 
      */
-    getOwnFood: function(id, userId) {
+    getOwnFood: function(name, userId) {
         if(!id) {
             return query(`SELECT * FROM ownFood WHERE userId = ${mysql.escape(userId)}`);
         } else {
-            return query(`SELECT * FROM ownFood WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`);
+            return query(`SELECT * FROM ownFood WHERE foodName = ${mysql.escape(name)} AND userId = ${mysql.escape(userId)}`);
         }
+    },
+
+    getFoodByDay: function(day_id, userId) {
+        return query(`SELECT * FROM ownFood WHERE day_id = ${mysql.escape(day_id)} AND userId = ${mysql.escape(userId)}`);
     },
 
     /**

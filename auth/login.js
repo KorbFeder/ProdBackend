@@ -23,7 +23,7 @@ module.exports = (req, res) => {
 
     validateCredentials(username, password).then((result) => {
         const userId = result.id.toString();
-        const expires = 60;
+        const expires = 1200;
 
         const jsonPath = path.join(__dirname, '..', 'keys', 'jwtRS256.key');
         const RSA_PRIVATE_KEY = fs.readFileSync(jsonPath, 'utf8');
