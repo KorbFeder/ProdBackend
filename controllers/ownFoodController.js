@@ -13,15 +13,37 @@ module.exports = {
      */
     get: function(req, res, next) {
         const id = req.params.id;
+        const name = req.query.name;
+        const day_id = req.query.day_id;
         const userId = Number(req.user.sub);
 
-        ownFoodModel.getOwnFood(id, userId).then((result) => {
-            console.log(`getting own food was successful: ${JSON.stringify(result)}`);
-            res.status(200).send(result);
-        }).catch((err) => {
-            console.log(`getting own food was not successful: ${JSON.stringify(err)}`);
-            res.status(400).send(err);
-        });
+        if(id) {
+            ownFoodModel.getOwnFood(id, userId).then((result) => {
+                console.log(`getting own food was successful: ${JSON.stringify(result)}`);
+                res.status(200).send(result);
+            }).catch((err) => {
+                console.log(`getting own food was not successful: ${JSON.stringify(err)}`);
+                res.status(400).send(err);
+            });
+        } else {
+            if (name) {
+                ownFoodModel.getFoodByName(name, userId).then((result) => {
+                    console.log(`getting food by name was successful ${JSON.stringify(result)}`);
+                    res.status(200).send(result);
+                }).catch((err) => {
+                    console.log(`getting own food by name was not successful: ${JSON.stringify(err)}`);
+                    res.status(400).send(err);
+                });
+            } else if(day_id) {
+                ownFoodModel.getFoodByDay(day_id, userId).then((result) => {
+                    console.log(`getting food by day was successful ${JSON.stringify(result)}`);
+                    res.status(200).send(result);
+                }).catch((err) => {
+                    console.log(`getting own food by day was not successful: ${JSON.stringify(err)}`);
+                    res.status(400).send(err);
+                });
+            }
+        }
     },
 
     /**
