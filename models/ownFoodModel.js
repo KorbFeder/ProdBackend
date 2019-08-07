@@ -48,7 +48,7 @@ module.exports = {
     },
 
     getFoodByName: function(name, userId) {
-        return query(`SELECT * FROM ownFood WHERE userId = ${mysql.escape(userId)} AND Shrt_Desc LIKE %${name}%`);
+        return query(`SELECT * FROM ownFood WHERE userId = ${mysql.escape(userId)} AND Long_Desc LIKE '%${name}%'`);
     },
 
     getFoodByDay: function(day_id, userId) {
