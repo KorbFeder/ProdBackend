@@ -41,6 +41,9 @@ module.exports = {
      * @param {dailyNutrient} dailyNutrient
      */
     update: function(dailyNutrient) {
+        if(dailyNutrient.dayNr) {
+            dailyNutrient.dayNr = new Date(dailyNutrient.dayNr)
+        }
         return query(`UPDATE dailyNutrient 
                       SET dayNr = ${mysql.escape(dailyNutrient.dayNr)}, fatGoal = ${mysql.escape(dailyNutrient.fatGoal)},
                         carbGoal = ${mysql.escape(dailyNutrient.carbGoal)}, proteinGoal = ${mysql.escape(dailyNutrient.proteinGoal)},
