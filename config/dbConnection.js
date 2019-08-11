@@ -8,7 +8,7 @@ module.exports = () => {
      * a pool can manage multiple connections at once and also does the disconnecting
      */
     return mysql.createPool({
-        host: 'producitvity_db',
+        host: 'db',
         user: 'admin',
         password: 'admin', 
         database: 'productivity_db',

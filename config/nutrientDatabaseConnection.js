@@ -4,7 +4,7 @@ const mysql = require('mysql');
 
 module.exports = () => {
     return mysql.createPool({
-        host: 'productivity_db_nutrition',
+        host: 'db-nutrition',
         user: 'root',
         password: 'admin', 
         database: 'productivity_db_nutrition',
