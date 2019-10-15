@@ -11,6 +11,8 @@ const register = require('../auth/register');
 const authMiddleware = require('../middlewares/authMiddleware')();
 const nutrientController = require('../controllers/nutrientDatabaseController');
 const ownFoodController = require('../controllers/ownFoodController');
+const folderController = require('../controllers/folderController');
+const summariesController = require('../controllers/summariesController');
 
 /** authentication routes */
 router.post('/api/login', login);
@@ -46,6 +48,18 @@ router.delete('/api/daily/:date', authMiddleware, dailyNutrController.delete);
 /** nutrient database route */
 router.get('/api/nutr/food/:name/:manufac?', authMiddleware, nutrientController.get);
 router.get('/api/nutr/nutr/:NDB_No', authMiddleware, nutrientController.getNutr);
+
+/** folders route */
+router.get('/api/folder/:id', authMiddleware, folderController.get);
+router.post('/api/folder', authMiddleware, folderController.post);
+router.put('/api/folder', authMiddleware, folderController.put);
+router.delete('/api/folder/:id', authMiddleware, folderController.delete);
+
+/** summaries route */
+router.get('/api/summaries/:id', authMiddleware, summariesController.get);
+router.post('/api/summaries', authMiddleware,  summariesController.post);
+router.put('/api/summaries', authMiddleware, summariesController.put);
+router.delete('/api/summaries/:id', authMiddleware, summariesController.delete);
 
 
 module.exports = router;

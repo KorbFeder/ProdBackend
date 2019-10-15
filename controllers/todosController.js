@@ -108,8 +108,8 @@ module.exports = {
                 res.status(405).send(error);
             });
         }else{
-            console.log("id param was not set");
-            res.status(400).send("request param was not set");
+            console.log('id param was not set');
+            res.status(400).send('request param was not set');
         }
     },
 
