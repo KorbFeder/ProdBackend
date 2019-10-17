@@ -28,9 +28,9 @@ module.exports = {
         return query(`INSERT INTO Summaries(id, userId, folderId, topic, content) 
             VALUES(${mysql.escape(summaries.id)}, ${mysql.escape(summaries.userId)}, 
                 ${mysql.escape(summaries.folderId)}, ${mysql.escape(summaries.topic)},
-                ${mysql.exports(summaries.content)})`).then((result) => {
+                ${mysql.escape(summaries.content)})`).then((result) => {
 
-                return this.getSummaries(summaries.userId, result.insertId);
+                return this.getSummaries(summaries.userId, summaries.folderId, result.insertId);
             });
     },
 

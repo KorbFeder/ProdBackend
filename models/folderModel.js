@@ -8,7 +8,6 @@ const con = dbConnection();
 
 //convert every query into a promise
 const query = promisify(con.query).bind(con);
-const summariesController = require('../controllers/summariesController');
 
 con.on('connection', (connection) => {
     console.log('new connection to todos is made: ' + connection.threadId);
