@@ -14,11 +14,13 @@ con.on('connection', (connection) => {
 });
 
 module.exports = {
-   getSummaries: function(userId, id = null) {
+   getSummaries: function(userId, folderId, id = null) {
         if(id === null) {
-            return query(`SELECT * FROM Summaries WHERE userId = ${mysql.escape(userId)}`);
+            return query(`SELECT * FROM Summaries WHERE userId = ${mysql.escape(userId)} 
+                AND folderId = ${mysql.escape(folderId)}`);
         }else {
-            return query(`SELECT * FROM Summaries WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`);
+            return query(`SELECT * FROM Summaries WHERE id = ${mysql.escape(id)} 
+                AND userId = ${mysql.escape(userId)} AND folderId = ${mysql.escape(folderId)}`);
         }
     },
 
@@ -28,7 +30,7 @@ module.exports = {
                 ${mysql.escape(summaries.folderId)}, ${mysql.escape(summaries.topic)},
                 ${mysql.exports(summaries.content)})`).then((result) => {
 
-                return this.getSummaries(summaries.userId, summaries.id);
+                return this.getSummaries(summaries.userId, result.insertId);
             });
     },
 
@@ -55,7 +57,7 @@ module.exports = {
     deleteSummary: function(id, userId) {
         return query(`DELETE FROM Summeries WHERE id = ${mysql.escape(id)} 
                       AND userId = ${mysql.escape(userId)}`).then(() => {
-                          return new Promise((resolve, reject) _=> {
+                          return new Promise((resolve, reject) => {
                               resolve(id);
                           });
                       });

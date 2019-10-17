@@ -26,7 +26,7 @@ module.exports = {
     saveFolder: function(folder) {
         return query(`INSERT INTO Folders(id, userId, name) 
             VALUES(${mysql.escape(folder.id)}, ${mysql.escape(folder.userId)}, ${mysql.escape(folder.name)})`).then((result) => {
-                return this.getFolder(folder.userId, folder.id);
+                return this.getFolder(folder.userId, result.insertId);
             });
     },
 

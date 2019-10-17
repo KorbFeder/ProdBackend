@@ -28,7 +28,7 @@ module.exports = {
     post: function(req, res, next) {
         const folder = req.body;
         folder.userId = Number(req.user.sub);
-        if(folder.id) {
+        if(req.body) {
             folderModel.saveFolder(folder).then((result) => {
                 console.log(`saving a folder was successful ${JSON.stringify(result)}`);
                 res.status(200).send(result);
@@ -45,7 +45,7 @@ module.exports = {
     put: function(req, res, next) {
         const folder = req.body;
         folder.userId = Number(req.user.sub);
-        if(folder.id) {
+        if(req.body) {
             folderModel.updateFolder(folder).then((result) => {
                 console.log(`updating folder was a success ${JSON.stringify(result)}`);
                 res.status(200).send(result);

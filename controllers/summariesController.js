@@ -5,9 +5,10 @@ const summariesModel = require('../models/summariesModel');
 module.exports = {
     get: function(req, res, next) {
         const id = req.params.id;
+        const folderId = req.params.folderId;
         const userId = Number(req.user.sub);
         if(!id) {
-            summariesModel.getSummaries(userId).then((result) => {
+            summariesModel.getSummaries(userId, folderId).then((result) => {
                 console.log(`getting all summaries was successful ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
@@ -15,7 +16,7 @@ module.exports = {
                 res.status(405).send(error);
             });
         } else {
-            summariesModel.getSummaries(userId, id).then((result) => {
+            summariesModel.getSummaries(userId, folderId, id).then((result) => {
                 console.log(`getting one Summary was successful ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
@@ -29,7 +30,7 @@ module.exports = {
         const summaries = req.body;
         summaries.userId = Number(req.user.sub);
         
-        if(summaries.id) {
+        if(req.body) {
             summariesModel.saveSummary(summaries).then((result) => {
                 console.log(`saving a summary was a success: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
@@ -46,7 +47,7 @@ module.exports = {
     put: function(req, res, next) {
         const summray = req.body;
         summray.userId = Number(req.user.sub);
-        if(summray.id) {
+        if(req.body) {
             summariesModel.updateSummary(summray).then((result) => {
                 console.log(`updating the summary was a success: ${JSON.stringify(result)}`);
                 res.status(200).send(result);

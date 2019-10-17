@@ -51,12 +51,14 @@ router.get('/api/nutr/nutr/:NDB_No', authMiddleware, nutrientController.getNutr)
 
 /** folders route */
 router.get('/api/folder/:id', authMiddleware, folderController.get);
+router.get('/api/folder', authMiddleware, folderController.get);
 router.post('/api/folder', authMiddleware, folderController.post);
 router.put('/api/folder', authMiddleware, folderController.put);
 router.delete('/api/folder/:id', authMiddleware, folderController.delete);
 
 /** summaries route */
-router.get('/api/summaries/:id', authMiddleware, summariesController.get);
+router.get('/api/summaries/:folderId/:id', authMiddleware, summariesController.get);
+router.get('/api/summaries/:folderId', authMiddleware, summariesController.get);
 router.post('/api/summaries', authMiddleware,  summariesController.post);
 router.put('/api/summaries', authMiddleware, summariesController.put);
 router.delete('/api/summaries/:id', authMiddleware, summariesController.delete);
