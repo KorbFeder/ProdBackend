@@ -60,7 +60,7 @@ module.exports = {
     },
 
     delete: function(req, res, next) {
-        const id = req.parmas.id;
+        const id = req.params.id;
         const userId = Number(req.user.sub);
         if(id) {
             folderModel.deleteFolder(userId, id).then((result) => {

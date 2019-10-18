@@ -55,7 +55,7 @@ module.exports = {
     },
 
     deleteSummary: function(id, userId) {
-        return query(`DELETE FROM Summeries WHERE id = ${mysql.escape(id)} 
+        return query(`DELETE FROM Summaries WHERE id = ${mysql.escape(id)} 
                       AND userId = ${mysql.escape(userId)}`).then(() => {
                           return new Promise((resolve, reject) => {
                               resolve(id);

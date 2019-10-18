@@ -32,7 +32,7 @@ module.exports = {
     updateFolder: function(folder) {
         return this.getFolder(folder.userId, folder.id).then((result) => {
             if(result.length > 0) {
-                return query(`UPDATE Folder
+                return query(`UPDATE Folders
                               SET name = ${mysql.escape(folder.name)} 
                               WHERE ${mysql.escape(folder.id)} = id AND ${mysql.escape(folder.userId)} = userId`);
             } else {
@@ -49,7 +49,7 @@ module.exports = {
         return query(`DELETE FROM Summaries 
                       WHERE folderId = ${mysql.escape(id)} 
                         AND userId = ${mysql.escape(userId)}`).then((result) => {
-                            return query(`DELETE FROM Folder 
+                            return query(`DELETE FROM Folders
                                           WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`);
                         }).then((result) => {
                             return new Promise((resolve, reject) => {
