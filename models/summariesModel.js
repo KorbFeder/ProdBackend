@@ -35,7 +35,7 @@ module.exports = {
     },
 
     updateSummary: function(summaries) {
-        return this.getSummaries(summaries.userId, summaries.id).then((result) => {
+        return this.getSummaries(summaries.userId, summaries.folderId, summaries.id).then((result) => {
             if(result.length > 0) {
                 return query(`UPDATE Summaries 
                             SET userId = ${mysql.escape(summaries.userId)}, 
@@ -50,7 +50,7 @@ module.exports = {
                 });
             }
         }).then(() => {
-            return this.getSummaries(summaries.userId, summaries.id);
+            return this.getSummaries(summaries.userId, summaries.folderId, summaries.id);
         })
     },
 
