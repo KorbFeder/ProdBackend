@@ -92,18 +92,22 @@ module.exports = {
         for(const trainigPlan of trainigsPlans){
             promises.push(await query(`UPDATE trainingsPlanRows SET
                         phase = ${mysql.escape(trainigPlan.phase)}, dayNr = ${mysql.escape(trainigPlan.dayNr)}, 
-                        muscle = ${mysql.escape(trainigPlan.muscle)}, excercise = ${mysql.escape(trainigPlan.excercise)}, 
-                        amountOfSets = ${mysql.escape(trainigPlan.amountOfSets)}, repeatitions = ${mysql.escape(trainigPlan.repeatitions)},
+                        muscle = ${mysql.escape(trainigPlan.muscle)}, excercise = ${mysql.escape(trainigPlan.exercise)}, 
+                        amountOfSets = ${mysql.escape(trainigPlan.amountOfSets)}, repeatitions = ${mysql.escape(trainigPlan.repetitions)},
                         pauseInbetween = ${mysql.escape(trainigPlan.pauseInbetween)}, startingWeight = ${mysql.escape(trainigPlan.startingWeight)}
-                        WHERE id = ${mysql.escape(trainigPlan.id)}, userId = ${mysql.escape(trainigPlan.userId)}`).then((result) => {
+                        WHERE id = ${mysql.escape(trainigPlan.id)} AND userId = ${mysql.escape(trainigPlan.userId)}`).then((result) => {
                 id = trainigPlan.id;
                 return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(trainigPlan.userId)}`);
             }).then((result) => {
                 return query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(trainigPlan.userId)}`);
             }).then((result) => {
-                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), trainigPlan.userId]);
+                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repetitionsDone.map(elem => {
+                    return [id, elem, trainigPlan.userId];
+                })]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), trainigPlan.userId]);
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => {
+                    return [id, elem, trainigPlan.userId]
+                })]);
             }));
         }
         return Promise.all(promises).then((result) => {
@@ -188,7 +192,7 @@ function arraySplitter(result) {
  * @param {string} sql 
  */
 function getTablesHelper(sql, userId){
-    let planResult;
+    let planResult = null;
     return query(sql).then((result) => {
         planResult = result;
         return query(`SELECT * FROM repeatitionsDone WHERE userId = ${mysql.escape(userId)}`);            
@@ -204,22 +208,27 @@ function getTablesHelper(sql, userId){
                 }
             }
         });
+
         return query(`SELECT * FROM weightsUsed WHERE userId = ${mysql.escape(userId)}`);
     }).then((result) => {
         return new Promise((resolve, reject) => {
             //inserts the array of weights used into the table
-            result.forEach((row) => {
-                const index = planResult.findIndex(x => x.id === row.id);
-                if(index !== null && index !== undefined && index > -1){
-                    if(planResult[index].weightsUsed){
-                        planResult[index].weightsUsed.push(row.weightUsed);
-                    } else {
-                        planResult[index].weightsUsed = [row.weightUsed];
+            if(result.length !== 0) {
+                result.forEach((row) => {
+                    const index = planResult.findIndex(x => x.id === row.id);
+                    if(index !== null && index !== undefined && index > -1){
+                        if(planResult[index].weightsUsed){
+                            planResult[index].weightsUsed.push(row.weightUsed);
+                        } else {
+                            planResult[index].weightsUsed = [row.weightUsed];
+                        }
                     }
-                }
-            });
-            const tables = arraySplitter(planResult);
-            resolve(tables);
+                });
+                const tables = arraySplitter(planResult);
+                resolve(tables);
+            } else {
+                resolve(planResult);
+            }
         });
     });
 }
