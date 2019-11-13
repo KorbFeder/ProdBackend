@@ -66,9 +66,9 @@ module.exports = {
                         ${mysql.escape(trainigPlan.userId)}`)
             ).then((result) => {
                 id = result.insertId;
-                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), userId]);
+                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), trainigPlan.userId]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), userId]);
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), trainigPlan.userId]);
             }));
         }
         return Promise.all(promises);
@@ -91,13 +91,13 @@ module.exports = {
                         pauseInbetween = ${mysql.escape(trainigPlan.pauseInbetween)}, startingWeight = ${mysql.escape(trainigPlan.startingWeight)}
                         WHERE id = ${mysql.escape(trainigPlan.id)}, userId = ${mysql.escape(trainigPlan.userId)}`).then((result) => {
                 id = trainigPlan.id;
-                return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`);
+                return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(trainigPlan.userId)}`);
             }).then((result) => {
-                return query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`);
+                return query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(trainigPlan.userId)}`);
             }).then((result) => {
-                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), userId]);
+                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), trainigPlan.userId]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), userId]);
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), trainigPlan.userId]);
             }));
         }
         return Promise.all(promises);
