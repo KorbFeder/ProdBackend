@@ -15,8 +15,9 @@ module.exports = {
     get: function(req, res, next) {
         const phase = req.params.phase;
         const day = req.params.day;
+        const userId = Number(req.user.sub);
         if(!phase && !day) {
-            fitPlannerModel.getAllTrainingsPlans().then((result) => {
+            fitPlannerModel.getAllTrainingsPlans(userId).then((result) => {
                 console.log(`got all the training planes: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
@@ -24,7 +25,7 @@ module.exports = {
                 res.status(405).send(error);
             });
         }else{
-            fitPlannerModel.getTrainingsPlan(phase, day).then((result) => {
+            fitPlannerModel.getTrainingsPlan(userId, phase, day).then((result) => {
                 console.log(`got one training plan: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {
@@ -45,6 +46,7 @@ module.exports = {
      */
     post: function(req, res, next) {
         const trainingsPlan = req.body;
+        trainingsPlan.userId = Number(req.user.sub);
         fitPlannerModel.saveTrainingsPlan(trainingsPlan).then((result) => {
             console.log(`inserted into trainingsPlan: ${JSON.stringify(result)}`);
             res.status(200).send(result);
@@ -64,6 +66,7 @@ module.exports = {
      */
     put: function(req, res, next) {
         const trainingsPlan = req.body;
+        trainingsPlan.userId = Number(req.user.sub);
         fitPlannerModel.updateTrainingsPlan(trainingsPlan).then((result) => {
             console.log(`updated trainingsPlan: ${JSON.stringify(result)}`);
             res.status(200).send(result);
@@ -86,8 +89,9 @@ module.exports = {
     delete: function(req, res, next) {
         const phase = req.params.phase;
         const day = req.params.day;
+        const userId = Number(req.user.sub);
         if(phase && day) {
-            fitPlannerModel.deleteTrainingsPlan(phase, day).then((result) => {
+            fitPlannerModel.deleteTrainingsPlan(userId, phase, day).then((result) => {
                 console.log(`deleted trainingsPlan: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             }).catch((error) => {

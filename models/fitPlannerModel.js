@@ -30,8 +30,8 @@ module.exports = {
      * This function gets all the Trainings plans of the Database and returns them in the resolve object of
      * the Promise, if it failed it will return the error log in the reject object of the rejection.
      */
-    getAllTrainingsPlans: function() {
-        return getTablesHelper('SELECT * FROM trainingsPlanRows');
+    getAllTrainingsPlans: function(userId) {
+        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE userId = ${mysql.escape(userId)}`, userId);
     },
 
     /**
@@ -42,8 +42,8 @@ module.exports = {
      * @param {number} phase
      * @param {number} day
      */
-    getTrainingsPlan: function(phase, day) {
-        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)}`);
+    getTrainingsPlan: function(userId, phase, day) {
+        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)} AND userId = ${mysql.escape(userId)}`, userId);
     },
 
     /**
@@ -58,16 +58,17 @@ module.exports = {
         let id;
         const promises = [];
         for(const trainigPlan of trainigsPlans){
-            promises.push(await query((`INSERT INTO trainingsPlanRows(phase, dayNr, muscle, excercise, amountOfSets, repeatitions, pauseInbetween, startingWeight)
+            promises.push(await query((`INSERT INTO trainingsPlanRows(phase, dayNr, muscle, excercise, amountOfSets, repeatitions, pauseInbetween, startingWeight, userId)
                         VALUES(${mysql.escape(trainigPlan.phase)}, ${mysql.escape(trainigPlan.dayNr)}, 
                         ${mysql.escape(trainigPlan.muscle)}, ${mysql.escape(trainigPlan.excercise)}, 
                         ${mysql.escape(trainigPlan.amountOfSets)}, ${mysql.escape(trainigPlan.repeatitions)},
-                        ${mysql.escape(trainigPlan.pauseInbetween)}, ${mysql.escape(trainigPlan.startingWeight)})`)
+                        ${mysql.escape(trainigPlan.pauseInbetween)}, ${mysql.escape(trainigPlan.startingWeight)}),
+                        ${mysql.escape(trainigPlan.userId)}`)
             ).then((result) => {
                 id = result.insertId;
-                return query(`INSERT INTO repeatitionsDone(id, repeatition) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem])]);
+                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), userId]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem])]);
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), userId]);
             }));
         }
         return Promise.all(promises);
@@ -88,15 +89,15 @@ module.exports = {
                         muscle = ${mysql.escape(trainigPlan.muscle)}, excercise = ${mysql.escape(trainigPlan.excercise)}, 
                         amountOfSets = ${mysql.escape(trainigPlan.amountOfSets)}, repeatitions = ${mysql.escape(trainigPlan.repeatitions)},
                         pauseInbetween = ${mysql.escape(trainigPlan.pauseInbetween)}, startingWeight = ${mysql.escape(trainigPlan.startingWeight)}
-                        WHERE id = ${mysql.escape(trainigPlan.id)}`).then((result) => {
+                        WHERE id = ${mysql.escape(trainigPlan.id)}, userId = ${mysql.escape(trainigPlan.userId)}`).then((result) => {
                 id = trainigPlan.id;
-                return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(id)}`);
+                return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`);
             }).then((result) => {
-                return query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(id)}`);
+                return query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(userId)}`);
             }).then((result) => {
-                return query(`INSERT INTO repeatitionsDone(id, repeatition) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem])]);
+                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), userId]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem])]);
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), userId]);
             }));
         }
         return Promise.all(promises);
@@ -111,14 +112,16 @@ module.exports = {
      * @param {number} phase 
      * @param {number} day 
      */
-    deleteTrainingsPlan: async function(phase, day) {
-        return query(`SELECT * FROM trainingsPlanRows WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)}`).then(async (result) => {
+    deleteTrainingsPlan: async function(userId, phase, day) {
+        return query(`SELECT * FROM trainingsPlanRows 
+            WHERE phase = ${mysql.escape(phase)} AND userId = ${mysql.escape(userId)}
+                AND dayNr = ${mysql.escape(day)}`).then(async (result) => {
             const promises = [];
             result.forEach(async (row) => {
-                promises.push(await query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(row.id)}`).then((result) => {
-                    return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(row.id)}`);
+                promises.push(await query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(row.id)} AND userId = ${mysql.escape(userId)}`).then((result) => {
+                    return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(row.id)} AND userId = ${mysql.escape(userId)}`);
                 }).then((result) => {
-                    return query(`DELETE FROM trainingsPlanRows WHERE id = ${mysql.escape(row.id)}`);
+                    return query(`DELETE FROM trainingsPlanRows WHERE id = ${mysql.escape(row.id)} AND userId = ${mysql.escape(userId)}`);
                 }).then((result) => {
                     return new Promise((resolve, reject) => {
                         resolve(id);
@@ -176,11 +179,11 @@ function arraySplitter(result) {
  * 
  * @param {string} sql 
  */
-function getTablesHelper(sql){
+function getTablesHelper(sql, userId){
     let planResult;
     return query(sql).then((result) => {
         planResult = result;
-        return query('SELECT * FROM repeatitionsDone');            
+        return query(`SELECT * FROM repeatitionsDone WHERE userId = ${mysql.escape(userId)}`);            
     }).then((result) => {
         //inserts the array of repeatition into the table
         result.forEach((row) => {
@@ -193,7 +196,7 @@ function getTablesHelper(sql){
                 }
             }
         });
-        return query('SELECT * FROM weightsUsed');
+        return query(`SELECT * FROM weightsUsed WHERE userId = ${mysql.escape(userId)}`);
     }).then((result) => {
         return new Promise((resolve, reject) => {
             //inserts the array of weights used into the table
