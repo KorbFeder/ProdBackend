@@ -45,9 +45,11 @@ module.exports = {
      * @param {function} next 
      */
     post: function(req, res, next) {
-        const trainingsPlan = req.body;
-        trainingsPlan.userId = Number(req.user.sub);
-        fitPlannerModel.saveTrainingsPlan(trainingsPlan).then((result) => {
+        const trainingsPlans = req.body;
+        for(const trainingsPlan of trainingsPlans) {
+            trainingsPlan.userId = Number(req.user.sub);
+        }
+        fitPlannerModel.saveTrainingsPlan(trainingsPlans).then((result) => {
             console.log(`inserted into trainingsPlan: ${JSON.stringify(result)}`);
             res.status(200).send(result);
         }).catch((error) => {

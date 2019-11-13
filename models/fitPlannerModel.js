@@ -60,18 +60,24 @@ module.exports = {
         for(const trainigPlan of trainigsPlans){
             promises.push(await query((`INSERT INTO trainingsPlanRows(phase, dayNr, muscle, excercise, amountOfSets, repeatitions, pauseInbetween, startingWeight, userId)
                         VALUES(${mysql.escape(trainigPlan.phase)}, ${mysql.escape(trainigPlan.dayNr)}, 
-                        ${mysql.escape(trainigPlan.muscle)}, ${mysql.escape(trainigPlan.excercise)}, 
-                        ${mysql.escape(trainigPlan.amountOfSets)}, ${mysql.escape(trainigPlan.repeatitions)},
-                        ${mysql.escape(trainigPlan.pauseInbetween)}, ${mysql.escape(trainigPlan.startingWeight)}),
-                        ${mysql.escape(trainigPlan.userId)}`)
+                        ${mysql.escape(trainigPlan.muscle)}, ${mysql.escape(trainigPlan.exercise)}, 
+                        ${mysql.escape(trainigPlan.amountOfSets)}, ${mysql.escape(trainigPlan.repetitions)},
+                        ${mysql.escape(trainigPlan.pauseInbetween)}, ${mysql.escape(trainigPlan.startingWeight)},
+                        ${mysql.escape(trainigPlan.userId)})`)
             ).then((result) => {
                 id = result.insertId;
-                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repeatitionsDone.map(elem => [id, elem]), trainigPlan.userId]);
+                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repetitionsDone.map(elem => {
+                    return [id, elem, trainigPlan.userId];
+                })]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), trainigPlan.userId]);
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => {
+                    return [id, elem, trainigPlan.userId];
+                })]);
             }));
         }
-        return Promise.all(promises);
+        return Promise.all(promises).then((result) => {
+            return this.getTrainingsPlan(trainigsPlans[0].userId, trainigsPlans[0].phase, trainigsPlans[0].dayNr);
+        });
     },
 
     /**
@@ -100,7 +106,9 @@ module.exports = {
                 return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => [id, elem]), trainigPlan.userId]);
             }));
         }
-        return Promise.all(promises);
+        return Promise.all(promises).then((result) => {
+            return this.getTrainingsPlan(trainigsPlans[0].userId, trainigsPlans[0].phase, trainigsPlans[0].dayNr);
+        });
     },
 
     /**
