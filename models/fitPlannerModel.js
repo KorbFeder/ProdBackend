@@ -31,7 +31,7 @@ module.exports = {
      * the Promise, if it failed it will return the error log in the reject object of the rejection.
      */
     getAllTrainingsPlans: function(userId) {
-        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE userId = ${mysql.escape(userId)}`, userId);
+        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE userId = ${mysql.escape(userId)}`, userId).then(res => res = res[0]);
     },
 
     /**
@@ -43,7 +43,7 @@ module.exports = {
      * @param {number} day
      */
     getTrainingsPlan: function(userId, phase, day) {
-        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)} AND userId = ${mysql.escape(userId)}`, userId);
+        return getTablesHelper(`SELECT * FROM trainingsPlanRows WHERE phase = ${mysql.escape(phase)} AND dayNr = ${mysql.escape(day)} AND userId = ${mysql.escape(userId)}`, userId).then(res => res = res[0]);
     },
 
     /**
@@ -58,7 +58,7 @@ module.exports = {
         let id;
         const promises = [];
         for(const trainigPlan of trainigsPlans){
-            promises.push(await query((`INSERT INTO trainingsPlanRows(phase, dayNr, muscle, excercise, amountOfSets, repeatitions, pauseInbetween, startingWeight, userId)
+            promises.push(await query((`INSERT INTO trainingsPlanRows(phase, dayNr, muscle, exercise, amountOfSets, repetitions, pauseInbetween, startingWeight, userId)
                         VALUES(${mysql.escape(trainigPlan.phase)}, ${mysql.escape(trainigPlan.dayNr)}, 
                         ${mysql.escape(trainigPlan.muscle)}, ${mysql.escape(trainigPlan.exercise)}, 
                         ${mysql.escape(trainigPlan.amountOfSets)}, ${mysql.escape(trainigPlan.repetitions)},
@@ -66,11 +66,17 @@ module.exports = {
                         ${mysql.escape(trainigPlan.userId)})`)
             ).then((result) => {
                 id = result.insertId;
-                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repetitionsDone.map(elem => {
+                for(let i = 0; i < trainigPlan.repetitions; i++) {
+                    trainigPlan.repetition.push(0);
+                }
+                return query(`INSERT INTO repetitionsDone(id, repetition, userId) VALUES ?`, [trainigPlan.repetition.map(elem => {
                     return [id, elem, trainigPlan.userId];
                 })]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => {
+                for(let i = 0; i < trainigPlan.amountOfSets; i++) {
+                    trainigPlan.weightUsed.push(0);
+                }
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightUsed.map(elem => {
                     return [id, elem, trainigPlan.userId];
                 })]);
             }));
@@ -92,20 +98,20 @@ module.exports = {
         for(const trainigPlan of trainigsPlans){
             promises.push(await query(`UPDATE trainingsPlanRows SET
                         phase = ${mysql.escape(trainigPlan.phase)}, dayNr = ${mysql.escape(trainigPlan.dayNr)}, 
-                        muscle = ${mysql.escape(trainigPlan.muscle)}, excercise = ${mysql.escape(trainigPlan.exercise)}, 
-                        amountOfSets = ${mysql.escape(trainigPlan.amountOfSets)}, repeatitions = ${mysql.escape(trainigPlan.repetitions)},
+                        muscle = ${mysql.escape(trainigPlan.muscle)}, exercise = ${mysql.escape(trainigPlan.exercise)}, 
+                        amountOfSets = ${mysql.escape(trainigPlan.amountOfSets)}, repetitions = ${mysql.escape(trainigPlan.repetitions)},
                         pauseInbetween = ${mysql.escape(trainigPlan.pauseInbetween)}, startingWeight = ${mysql.escape(trainigPlan.startingWeight)}
                         WHERE id = ${mysql.escape(trainigPlan.id)} AND userId = ${mysql.escape(trainigPlan.userId)}`).then((result) => {
                 id = trainigPlan.id;
-                return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(trainigPlan.userId)}`);
+                return query(`DELETE FROM repetitionsDone WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(trainigPlan.userId)}`);
             }).then((result) => {
                 return query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(id)} AND userId = ${mysql.escape(trainigPlan.userId)}`);
             }).then((result) => {
-                return query(`INSERT INTO repeatitionsDone(id, repeatition, userId) VALUES ?`, [trainigPlan.repetitionsDone.map(elem => {
+                return query(`INSERT INTO repetitionsDone(id, repetition, userId) VALUES ?`, [trainigPlan.repetitionsDone.map(elem => {
                     return [id, elem, trainigPlan.userId];
                 })]);
             }).then((result) => {
-                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightsUsed.map(elem => {
+                return query(`INSERT INTO weightsUsed(id, weightUsed, userId) VALUES ?`, [trainigPlan.weightUsed.map(elem => {
                     return [id, elem, trainigPlan.userId]
                 })]);
             }));
@@ -118,7 +124,7 @@ module.exports = {
     /**
      * This function deletes a trainingsPlan, if the trainingsPlan was not found it will return an sql error.
      * This function first gets all trainingsPlans and than deletes depending of the id of each row of an 
-     * trainingsPlan all elements from the other 2 tables, repeatitionsDone and weightsUsed.
+     * trainingsPlan all elements from the other 2 tables, repetitionsDone and weightsUsed.
      * This returns the Ids of the deleted rows
      * 
      * @param {number} phase 
@@ -131,7 +137,7 @@ module.exports = {
             const promises = [];
             result.forEach(async (row) => {
                 promises.push(await query(`DELETE FROM weightsUsed WHERE id = ${mysql.escape(row.id)} AND userId = ${mysql.escape(userId)}`).then((result) => {
-                    return query(`DELETE FROM repeatitionsDone WHERE id = ${mysql.escape(row.id)} AND userId = ${mysql.escape(userId)}`);
+                    return query(`DELETE FROM repetitionsDone WHERE id = ${mysql.escape(row.id)} AND userId = ${mysql.escape(userId)}`);
                 }).then((result) => {
                     return query(`DELETE FROM trainingsPlanRows WHERE id = ${mysql.escape(row.id)} AND userId = ${mysql.escape(userId)}`);
                 }).then((result) => {
@@ -195,16 +201,16 @@ function getTablesHelper(sql, userId){
     let planResult = null;
     return query(sql).then((result) => {
         planResult = result;
-        return query(`SELECT * FROM repeatitionsDone WHERE userId = ${mysql.escape(userId)}`);            
+        return query(`SELECT * FROM repetitionsDone WHERE userId = ${mysql.escape(userId)}`);            
     }).then((result) => {
-        //inserts the array of repeatition into the table
+        //inserts the array of repetition into the table
         result.forEach((row) => {
             const index = planResult.findIndex(x => x.id === row.id);
             if(index !== null && index !== undefined && index > -1){
-                if(planResult[index].repeatition) {
-                    planResult[index].repeatition.push(row.repeatition);
+                if(planResult[index].repetition) {
+                    planResult[index].repetition.push(row.repetition);
                 }else{
-                    planResult[index].repeatition = [row.repeatition];
+                    planResult[index].repetition = [row.repetition];
                 }
             }
         });
@@ -217,10 +223,10 @@ function getTablesHelper(sql, userId){
                 result.forEach((row) => {
                     const index = planResult.findIndex(x => x.id === row.id);
                     if(index !== null && index !== undefined && index > -1){
-                        if(planResult[index].weightsUsed){
-                            planResult[index].weightsUsed.push(row.weightUsed);
+                        if(planResult[index].weightUsed){
+                            planResult[index].weightUsed.push(row.weightUsed);
                         } else {
-                            planResult[index].weightsUsed = [row.weightUsed];
+                            planResult[index].weightUsed = [row.weightUsed];
                         }
                     }
                 });
